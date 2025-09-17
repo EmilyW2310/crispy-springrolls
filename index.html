@@ -25,7 +25,7 @@
             border-radius: 20px;
             border: 4px solid #f39c12;
             box-shadow: 0 0 40px rgba(243, 156, 18, 0.6);
-            max-width: 600px;
+            max-width: 1000px;
             position: relative;
             overflow: hidden;
         }
@@ -78,8 +78,8 @@
 
         .game-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
             margin-bottom: 40px;
         }
 
@@ -87,7 +87,7 @@
             background: linear-gradient(145deg, #34495e, #2c3e50);
             border: 3px solid transparent;
             border-radius: 15px;
-            padding: 30px;
+            padding: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
@@ -233,46 +233,37 @@
         <div class="universe-title">🎮 OSCAR'S GAMING UNIVERSE 🎮</div>
         <div class="subtitle">Where Sass Meets Strategy</div>
         
-<div class="game-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-    <div class="game-card oscar-emily" onclick="playGame('oscar-emily-game.html')">
-        <div class="game-title">🛡️ Oscar & Emily</div>
-        <div class="game-description">
-            Team up with Oscar's sass and Emily's strategy to defend the pre-sales team!
-        </div>
-        <ul class="game-features">
-            <li>🤝 Co-op gameplay</li>
-            <li>💅 Oscar's SaaS solutions</li>
-            <li>🔥 Emily's strategic strikes</li>
-        </ul>
-        <button class="play-btn">Play Co-op</button>
-    </div>
+        <div class="game-grid">
+            <div class="game-card oscar-emily" onclick="playGame('oscar-emily-game.html')">
+                <div class="game-title">🛡️ Oscar & Emily: Pre-Sales Defenders</div>
+                <div class="game-description">
+                    Team up with Oscar's legendary sass and Emily's strategic brilliance to defend the pre-sales team against legacy systems and terrible RFPs!
+                </div>
+                <ul class="game-features">
+                    <li>🤝 Co-op gameplay</li>
+                    <li>💅 Oscar's SaaS solutions</li>
+                    <li>🔥 Emily's strategic strikes</li>
+                    <li>🏢 Boss battles</li>
+                    <li>📈 Wave progression</li>
+                </ul>
+                <button class="play-btn">Play Co-op Mode</button>
+            </div>
 
-    <div class="game-card super-oscar" onclick="playGame('super-oscar-game.html')">
-        <div class="game-title">🌟 Super Oscar</div>
-        <div class="game-description">
-            Oscar's solo adventure collecting SaaS solutions with pure sass!
+            <div class="game-card super-oscar" onclick="playGame('super-oscar-game.html')">
+                <div class="game-title">🌟 Super Oscar: Solo Sass Adventure</div>
+                <div class="game-description">
+                    Experience Oscar's individual journey as he collects SaaS solutions whilst avoiding legacy systems with pure architectural sass!
+                </div>
+                <ul class="game-features">
+                    <li>👑 Solo Oscar gameplay</li>
+                    <li>☁️ Collect SaaS solutions</li>
+                    <li>💀 Avoid legacy systems</li>
+                    <li>🎯 High score challenges</li>
+                    <li>💫 Retro arcade style</li>
+                </ul>
+                <button class="play-btn">Play Solo Mode</button>
+            </div>
         </div>
-        <ul class="game-features">
-            <li>👑 Solo Oscar gameplay</li>
-            <li>☁️ Collect SaaS solutions</li>
-            <li>💫 Retro arcade style</li>
-        </ul>
-        <button class="play-btn">Play Solo</button>
-    </div>
-
-    <div class="game-card" style="border-image: linear-gradient(45deg, #ff6b6b, #ffd93d) 1;" onclick="playGame('marleys-management-mayhem.html')">
-        <div class="game-title">👩‍💼 Marley's Management</div>
-        <div class="game-description">
-            Lead the ultimate 13-person pre-sales dream team through crises and chaos!
-        </div>
-        <ul class="game-features">
-            <li>🌟 Play as the boss Marley</li>
-            <li>🎯 Point & shoot gameplay</li>
-            <li>👥 Manage 13 team members</li>
-        </ul>
-        <button class="play-btn">Lead the Team</button>
-    </div>
-</div>
 
         <div class="footer">
             "Darling, your gaming experience could NEVER!" - Oscar Hoyas<br>
