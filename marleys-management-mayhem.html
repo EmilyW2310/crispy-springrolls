@@ -256,12 +256,42 @@
             
             let crisis = crisisTypes[Math.floor(Math.random() * crisisTypes.length)];
             
+            // Spawn from different directions to hit all team members
+            const spawnSide = Math.random();
+            let startX, startY, targetX, targetY;
+            
+            if (spawnSide < 0.5) {
+                // Spawn from right side (original)
+                startX = canvas.width;
+                startY = Math.random() * (canvas.height - 100) + 50;
+                targetX = -crisis.speed;
+                targetY = 0;
+            } else {
+                // Spawn from top/bottom targeting specific team members
+                const randomMember = game.teamMembers[Math.floor(Math.random() * game.teamMembers.length)];
+                if (Math.random() < 0.5) {
+                    // From top
+                    startX = randomMember.x + Math.random() * 100 - 50;
+                    startY = -35;
+                    targetX = 0;
+                    targetY = crisis.speed;
+                } else {
+                    // From bottom
+                    startX = randomMember.x + Math.random() * 100 - 50;
+                    startY = canvas.height;
+                    targetX = 0;
+                    targetY = -crisis.speed;
+                }
+            }
+            
             game.crises.push({
-                x: canvas.width,
-                y: Math.random() * (canvas.height - 100) + 50,
+                x: startX,
+                y: startY,
                 width: 35,
                 height: 35,
-                speed: crisis.speed + (game.level * 0.3),
+                speedX: targetX,
+                speedY: targetY,
+                baseSpeed: crisis.speed + (game.level * 0.2),
                 stress: crisis.stress,
                 symbol: crisis.symbol,
                 points: crisis.points,
@@ -401,7 +431,8 @@
 
             // Update crises
             game.crises.forEach((crisis, index) => {
-                crisis.x -= crisis.speed;
+                crisis.x += crisis.speedX * crisis.baseSpeed;
+                crisis.y += crisis.speedY * crisis.baseSpeed;
                 
                 // Check collision with team members
                 game.teamMembers.forEach(member => {
@@ -422,7 +453,8 @@
                 }
 
                 // Remove if off screen
-                if (crisis.x + crisis.width < 0) {
+                if (crisis.x + crisis.width < -50 || crisis.x > canvas.width + 50 || 
+                    crisis.y + crisis.height < -50 || crisis.y > canvas.height + 50) {
                     game.crises.splice(index, 1);
                 }
             });
