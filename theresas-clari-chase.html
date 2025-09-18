@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theresa's Clari Chase</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #3498db 0%, #8e44ad 100%);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        .game-container {
+            text-align: center;
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #3498db;
+            box-shadow: 0 0 30px rgba(52, 152, 219, 0.5);
+        }
+
+        .game-title {
+            font-size: 28px;
+            color: #3498db;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 5px;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 15px #3498db; }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 25px #3498db, 0 0 35px #3498db; }
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        canvas {
+            border: 3px solid #8e44ad;
+            background: #1a1a1a;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(142, 68, 173, 0.4);
+        }
+
+        .controls {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #ecf0f1;
+            line-height: 1.4;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: rgba(52, 152, 219, 0.3);
+            padding: 5px 8px;
+            border-radius: 5px;
+            border: 1px solid #3498db;
+            margin: 2px;
+        }
+
+        .lives-stat {
+            background: rgba(231, 76, 60, 0.3);
+            border: 1px solid #e74c3c;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(231, 76, 60, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            border: 3px solid #c0392b;
+            display: none;
+            z-index: 1000;
+        }
+
+        .restart-btn, .back-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover, .back-btn:hover {
+            background: #2ecc71;
+        }
+
+        .back-btn {
+            background: #3498db;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background: #5dade2;
+        }
+
+        .victory {
+            background: rgba(39, 174, 96, 0.95);
+            border: 3px solid #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-title">🏃‍♀️ THERESA'S CLARI CHASE 📊</div>
+        <div class="subtitle">"Sales Ops vs The Elusive RVPs"</div>
+        
+        <canvas id="gameCanvas" width="700" height="500"></canvas>
+        
+        <div class="stats">
+            <div class="stat">Score: <span id="score">0</span></div>
+            <div class="stat">Level: <span id="level">1</span></div>
+            <div class="stat lives-stat">Lives: <span id="lives">3</span></div>
+            <div class="stat">Reports: <span id="reports">0</span>/<span id="totalReports">0</span></div>
+        </div>
+        
+        <div class="controls">
+            <strong>THERESA:</strong> Arrow Keys to navigate the office maze! 📋<br>
+            Collect all Clari reports 📊 while avoiding the RVPs! Use power-ups to turn the tables!<br>
+            💡 "The reports won't submit themselves!" - Theresa
+        </div>
+
+        <button class="back-btn" onclick="goHome()">← Back to Game Menu</button>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div id="gameOverTitle">💔 DEADLINE MISSED! 💔</div>
+        <div id="gameOverText">The RVPs escaped and the reports are still outstanding!</div>
+        <div>"We'll get those reports next time!" - Theresa</div>
+        <div>Final Score: <span id="finalScore">0</span></div>
+        <button class="restart-btn" onclick="restartGame()">Chase Again!</button>
+        <button class="back-btn" onclick="goHome()">← Back to Menu</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game constants
+        const CELL_SIZE = 20;
+        const ROWS = Math.floor(canvas.height / CELL_SIZE);
+        const COLS = Math.floor(canvas.width / CELL_SIZE);
+        
+        // Game state
+        let game = {
+            theresa: {
+                x: 2,
+                y: 2,
+                direction: 'right',
+                nextDirection: 'right',
+                speed: 0.1
+            },
+            rvps: [],
+            maze: [],
+            reports: 0,
+            totalReports: 0,
+            score: 0,
+            level: 1,
+            lives: 3,
+            gameRunning: true,
+            powerMode: false,
+            powerTimer: 0,
+            gameTime: 0,
+            popupTimer: 0,
+            showPopup: false,
+            popupDuration: 0
+        };
+
+        // Input handling
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            handleInput(e.key);
+        });
+        document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+        function handleInput(key) {
+            switch(key) {
+                case 'ArrowUp': game.theresa.nextDirection = 'up'; break;
+                case 'ArrowDown': game.theresa.nextDirection = 'down'; break;
+                case 'ArrowLeft': game.theresa.nextDirection = 'left'; break;
+                case 'ArrowRight': game.theresa.nextDirection = 'right'; break;
+            }
+        }
+
+        // Create simple maze layout
+        function createMaze() {
+            game.maze = [];
+            for (let row = 0; row < ROWS; row++) {
+                game.maze[row] = [];
+                for (let col = 0; col < COLS; col++) {
+                    if (row === 0 || row === ROWS-1 || col === 0 || col === COLS-1) {
+                        game.maze[row][col] = 'wall';
+                    } else if (row % 6 === 3 && col % 8 === 4 && row > 5 && col > 5) {
+                        game.maze[row][col] = 'powerup';
+                    } else if ((row % 8 === 4) && (col % 12 === 6)) {
+                        game.maze[row][col] = 'wall';
+                    } else {
+                        game.maze[row][col] = 'report';
+                    }
+                }
+            }
+            
+            // Clear starting area
+            for (let r = 1; r <= 3; r++) {
+                for (let c = 1; c <= 3; c++) {
+                    game.maze[r][c] = 'empty';
+                }
+            }
+            
+            // Count total reports
+            game.totalReports = 0;
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (game.maze[row][col] === 'report') {
+                        game.totalReports++;
+                    }
+                }
+            }
+        }
+
+        // Initialize RVPs
+        function createRVPs() {
+            game.rvps = [];
+            const positions = [
+                {x: 15, y: 8, color: '#e74c3c', emoji: '😠'},
+                {x: 20, y: 12, color: '#e91e63', emoji: '😏'},
+                {x: 10, y: 15, color: '#3498db', emoji: '🤔'}
+            ];
+
+            positions.forEach((pos, index) => {
+                game.rvps.push({
+                    x: pos.x,
+                    y: pos.y,
+                    direction: ['up', 'down', 'left'][index],
+                    color: pos.color,
+                    emoji: pos.emoji,
+                    speed: 0.06,
+                    scared: false,
+                    scaredTimer: 0
+                });
+            });
+        }
+
+        // Movement functions
+        function canMoveTo(x, y) {
+            if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return false;
+            const cellX = Math.floor(x);
+            const cellY = Math.floor(y);
+            return game.maze[cellY][cellX] !== 'wall';
+        }
+
+        function movePlayer() {
+            const theresa = game.theresa;
+            
+            let newX = theresa.x;
+            let newY = theresa.y;
+            
+            switch(theresa.nextDirection) {
+                case 'up': newY -= theresa.speed; break;
+                case 'down': newY += theresa.speed; break;
+                case 'left': newX -= theresa.speed; break;
+                case 'right': newX += theresa.speed; break;
+            }
+            
+            if (canMoveTo(newX, newY)) {
+                theresa.direction = theresa.nextDirection;
+                theresa.x = newX;
+                theresa.y = newY;
+            } else {
+                newX = theresa.x;
+                newY = theresa.y;
+                
+                switch(theresa.direction) {
+                    case 'up': newY -= theresa.speed; break;
+                    case 'down': newY += theresa.speed; break;
+                    case 'left': newX -= theresa.speed; break;
+                    case 'right': newX += theresa.speed; break;
+                }
+                
+                if (canMoveTo(newX, newY)) {
+                    theresa.x = newX;
+                    theresa.y = newY;
+                }
+            }
+            
+            // Keep Theresa within bounds
+            if (theresa.x < 0.5) theresa.x = COLS - 0.5;
+            if (theresa.x >= COLS - 0.5) theresa.x = 0.5;
+            if (theresa.y < 0.5) theresa.y = 0.5;
+            if (theresa.y >= ROWS - 0.5) theresa.y = ROWS - 0.5;
+        }
+
+        function moveRVPs() {
+            if (game.gameTime % 2 !== 0) return;
+            
+            game.rvps.forEach(rvp => {
+                if (rvp.scared) {
+                    rvp.scaredTimer--;
+                    if (rvp.scaredTimer <= 0) {
+                        rvp.scared = false;
+                    }
+                }
+                
+                if (game.gameTime % 120 === 0 && Math.random() < 0.5) {
+                    const directions = ['up', 'down', 'left', 'right'];
+                    rvp.direction = directions[Math.floor(Math.random() * directions.length)];
+                }
+                
+                let newX = rvp.x;
+                let newY = rvp.y;
+                
+                switch(rvp.direction) {
+                    case 'up': newY -= rvp.speed; break;
+                    case 'down': newY += rvp.speed; break;
+                    case 'left': newX -= rvp.speed; break;
+                    case 'right': newX += rvp.speed; break;
+                }
+                
+                if (canMoveTo(newX, newY)) {
+                    rvp.x = newX;
+                    rvp.y = newY;
+                }
+                
+                if (rvp.x < 1) rvp.x = COLS - 2;
+                if (rvp.x >= COLS - 1) rvp.x = 1;
+            });
+        }
+
+        // Collision detection
+        function checkCollisions() {
+            const theresaCell = game.maze[Math.floor(game.theresa.y)][Math.floor(game.theresa.x)];
+            if (theresaCell === 'report') {
+                game.maze[Math.floor(game.theresa.y)][Math.floor(game.theresa.x)] = 'empty';
+                game.reports++;
+                game.score += 10;
+            } else if (theresaCell === 'powerup') {
+                game.maze[Math.floor(game.theresa.y)][Math.floor(game.theresa.x)] = 'empty';
+                activatePowerMode();
+            }
+            
+            game.rvps.forEach((rvp, index) => {
+                const distance = Math.sqrt(
+                    Math.pow(rvp.x - game.theresa.x, 2) + 
+                    Math.pow(rvp.y - game.theresa.y, 2)
+                );
+                
+                if (distance < 0.8) {
+                    if (game.powerMode && rvp.scared) {
+                        game.score += 200;
+                        respawnRVP(rvp);
+                    } else if (!rvp.scared) {
+                        loseLife();
+                    }
+                }
+            });
+        }
+
+        function activatePowerMode() {
+            game.powerMode = true;
+            game.powerTimer = 300;
+            game.rvps.forEach(rvp => {
+                rvp.scared = true;
+                rvp.scaredTimer = 300;
+            });
+        }
+
+        function respawnRVP(rvp) {
+            rvp.x = 15 + Math.random() * 10;
+            rvp.y = 10 + Math.random() * 5;
+            rvp.scared = false;
+            rvp.scaredTimer = 0;
+        }
+
+        function loseLife() {
+            game.lives--;
+            if (game.lives <= 0) {
+                gameOver(false);
+            } else {
+                game.theresa.x = 2;
+                game.theresa.y = 2;
+                createRVPs();
+            }
+        }
+
+        // Update game logic
+        function update() {
+            if (!game.gameRunning) return;
+
+            game.gameTime++;
+            
+            // Handle popup reminders
+            game.popupTimer++;
+            if (game.popupTimer >= 600) {
+                game.showPopup = true;
+                game.popupDuration = 120;
+                game.popupTimer = 0;
+            }
+            
+            if (game.showPopup) {
+                game.popupDuration--;
+                if (game.popupDuration <= 0) {
+                    game.showPopup = false;
+                }
+            }
+            
+            movePlayer();
+            moveRVPs();
+            checkCollisions();
+            
+            if (game.powerMode) {
+                game.powerTimer--;
+                if (game.powerTimer <= 0) {
+                    game.powerMode = false;
+                }
+            }
+            
+            if (game.reports >= game.totalReports) {
+                nextLevel();
+            }
+            
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('level').textContent = game.level;
+            document.getElementById('lives').textContent = game.lives;
+            document.getElementById('reports').textContent = game.reports;
+            document.getElementById('totalReports').textContent = game.totalReports;
+        }
+
+        function nextLevel() {
+            game.level++;
+            game.reports = 0;
+            createMaze();
+            createRVPs();
+            game.theresa.x = 2;
+            game.theresa.y = 2;
+            game.powerMode = false;
+        }
+
+        // Render game
+        function render() {
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (!game.gameRunning) return;
+
+            // Draw walls
+            ctx.fillStyle = '#3498db';
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (game.maze[row][col] === 'wall') {
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    }
+                }
+            }
+
+            // Draw reports
+            ctx.fillStyle = '#f39c12';
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (game.maze[row][col] === 'report') {
+                        ctx.fillRect(col * CELL_SIZE + 8, row * CELL_SIZE + 8, 4, 4);
+                    }
+                }
+            }
+
+            // Draw power-ups
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (game.maze[row][col] === 'powerup') {
+                        const x = col * CELL_SIZE;
+                        const y = row * CELL_SIZE;
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillRect(x + 4, y + 4, 12, 12);
+                        ctx.fillStyle = 'white';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('📧', x + CELL_SIZE/2, y + CELL_SIZE/2 + 2);
+                    }
+                }
+            }
+
+            // Draw Theresa
+            const theresaX = game.theresa.x * CELL_SIZE + CELL_SIZE/2;
+            const theresaY = game.theresa.y * CELL_SIZE + CELL_SIZE/2;
+            
+            ctx.fillStyle = game.powerMode ? '#27ae60' : '#e74c3c';
+            ctx.fillRect(theresaX - 8, theresaY - 8, 16, 16);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('💃', theresaX, theresaY + 4);
+
+            // Draw RVPs
+            game.rvps.forEach(rvp => {
+                const x = rvp.x * CELL_SIZE + CELL_SIZE/2;
+                const y = rvp.y * CELL_SIZE + CELL_SIZE/2;
+                
+                ctx.fillStyle = rvp.scared ? '#95a5a6' : rvp.color;
+                ctx.fillRect(x - 8, y - 8, 16, 16);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(rvp.emoji, x, y + 3);
+            });
+
+            // Draw popup
+            if (game.showPopup) {
+                const messages = [
+                    "HAVE YOU DONE YOUR CLARI YET?!",
+                    "REPORTS ARE DUE TODAY!",
+                    "WHERE ARE THE UPDATES?!",
+                    "CLARI WON'T UPDATE ITSELF!",
+                    "DEADLINE APPROACHING! 📊"
+                ];
+                
+                const message = messages[Math.floor(game.gameTime / 600) % messages.length];
+                
+                ctx.fillStyle = 'rgba(231, 76, 60, 0.95)';
+                ctx.fillRect(canvas.width/2 - 180, 50, 360, 60);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(message, canvas.width/2, 80);
+                
+                ctx.font = '20px Arial';
+                ctx.fillText('💃', canvas.width/2 + 140, 75);
+            }
+        }
+
+        // Game over
+        function gameOver(victory) {
+            game.gameRunning = false;
+            document.getElementById('finalScore').textContent = game.score;
+            
+            if (victory) {
+                document.getElementById('gameOverTitle').textContent = '🎉 ALL REPORTS SUBMITTED! 🎉';
+                document.getElementById('gameOverText').textContent = 'Theresa successfully chased down all the RVPs!';
+                document.getElementById('gameOver').classList.add('victory');
+            } else {
+                document.getElementById('gameOverTitle').textContent = '💔 DEADLINE MISSED! 💔';
+                document.getElementById('gameOverText').textContent = 'The RVPs escaped and the reports are still outstanding!';
+                document.getElementById('gameOver').classList.remove('victory');
+            }
+            
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        // Restart game
+        function restartGame() {
+            game = {
+                theresa: {
+                    x: 2,
+                    y: 2,
+                    direction: 'right',
+                    nextDirection: 'right',
+                    speed: 0.1
+                },
+                rvps: [],
+                maze: [],
+                reports: 0,
+                totalReports: 0,
+                score: 0,
+                level: 1,
+                lives: 3,
+                gameRunning: true,
+                powerMode: false,
+                powerTimer: 0,
+                gameTime: 0,
+                popupTimer: 0,
+                showPopup: false,
+                popupDuration: 0
+            };
+            
+            createMaze();
+            createRVPs();
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game
+        createMaze();
+        createRVPs();
+        gameLoop();
+
+        console.log("📊 Welcome to Theresa's Clari Chase! Help our Sales Ops hero collect those reports! 🏃‍♀️");
+    </script>
+</body>
+</html>
