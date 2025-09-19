@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games - Crispy Springrolls Gaming</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .game-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--game-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-color: var(--game-color);
+        }
+
+        .game-card.arcade {
+            --game-color: #e74c3c;
+        }
+
+        .game-card.strategy {
+            --game-color: #3498db;
+        }
+
+        .game-card.management {
+            --game-color: #f39c12;
+        }
+
+        .game-card.chase {
+            --game-color: #9b59b6;
+        }
+
+        .game-card.coming-soon {
+            --game-color: #95a5a6;
+            opacity: 0.7;
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .game-category {
+            background: var(--game-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .game-description {
+            color: #5a6c7d;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .game-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .game-features li:last-child {
+            border-bottom: none;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--game-color);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #5a6c7d;
+            text-transform: uppercase;
+        }
+
+        .play-button {
+            width: 100%;
+            background: linear-gradient(45deg, var(--game-color), var(--game-color));
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .play-button:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            filter: brightness(1.1);
+        }
+
+        .play-button.disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #f39c12;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .coming-soon-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(149, 165, 166, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #95a5a6;
+            backdrop-filter: blur(2px);
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .category-filters {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🥢</span>
+                <span class="logo-text">Crispy Springrolls</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item active">
+                    <a href="index.html" class="nav-link">Games</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../leaderboard/index.html" class="nav-link">Leaderboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../about/index.html" class="nav-link">Team</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">🎮 Game Library 🎮</h1>
+            <p class="page-subtitle">Choose your adventure and join the pre-sales gaming legends!</p>
+        </header>
+
+        <!-- Content Section -->
+        <section class="content-section">
+            <!-- Category Filters -->
+            <div class="category-filters">
+                <button class="filter-btn active" data-category="all">All Games</button>
+                <button class="filter-btn" data-category="arcade">Arcade</button>
+                <button class="filter-btn" data-category="strategy">Strategy</button>
+                <button class="filter-btn" data-category="management">Management</button>
+                <button class="filter-btn" data-category="coming-soon">Coming Soon</button>
+            </div>
+
+            <!-- Games Grid -->
+            <div class="games-grid">
+                <!-- Oscar & Emily Game -->
+                <div class="game-card strategy" data-category="strategy">
+                    <div class="game-header">
+                        <div class="game-icon">🛡️</div>
+                        <div>
+                            <h3 class="game-title">Oscar & Emily: Pre-Sales Defenders</h3>
+                            <span class="game-category">Strategy</span>
+                        </div>
+                    </div>
+                    
+                    <p class="game-description">
+                        Team up with Oscar's legendary sass and Emily's strategic brilliance to defend the pre-sales team against legacy systems and terrible RFPs!
+                    </p>
+                    
+                    <ul class="game-features">
+                        <li>🤝 Co-operative gameplay with dual characters</li>
+                        <li>💅 Oscar's rapid-fire SaaS solutions</li>
+                        <li>🔥 Emily's strategic piercing attacks</li>
+                        <li>📈 Progressive wave system</li>
+                        <li>🏢 Epic boss battles</li>
+                    </ul>
+                    
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="oscar-emily-plays">1,247</div>
+                            <div class="stat-label">Total Plays</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="oscar-emily-high">15,420</div>
+                            <div class="stat-label">High Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">⭐⭐⭐⭐⭐</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+                    
+                    <a href="oscar-emily-game.html" class="play-button">Play Co-op Mode</a>
+                </div>
+
+                <!-- Super Oscar Game -->
+                <div class="game-card arcade" data-category="arcade">
+                    <div class="game-header">
+                        <div class="game-icon">🌟</div>
+                        <div>
+                            <h3 class="game-title">Super Oscar: Solo Sass Adventure</h3>
+                            <span class="game-category">Arcade</span>
+                        </div>
+                    </div>
+                    
+                    <p class="game-description">
+                        Experience Oscar's individual journey as he collects SaaS solutions whilst avoiding legacy systems with pure architectural sass!
+                    </p>
+                    
+                    <ul class="game-features">
+                        <li>👑 Solo Oscar gameplay with crown power</li>
+                        <li>☁️ Collect valuable SaaS solutions</li>
+                        <li>💀 Dodge dangerous legacy systems</li>
+                        <li>🎯 Competitive high score challenges</li>
+                        <li>💫 Classic retro arcade styling</li>
+                    </ul>
+                    
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="super-oscar-plays">892</div>
+                            <div class="stat-label">Total Plays</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="super-oscar-high">8,750</div>
+                            <div class="stat-label">High Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">⭐⭐⭐⭐⭐</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+                    
+                    <a href="super-oscar-game.html" class="play-button">Play Solo Mode</a>
+                </div>
+
+                <!-- Marley's Management Game -->
+                <div class="game-card management" data-category="management">
+                    <div class="game-header">
+                        <div class="game-icon">👩‍💼</div>
+                        <div>
+                            <h3 class="game-title">Marley's Management Mayhem</h3>
+                            <span class="game-category">Management</span>
+                        </div>
+                    </div>
+                    
+                    <p class="game-description">
+                        Lead the ultimate 13-person pre-sales dream team through impossible crises and chaos as the legendary boss Marley!
+                    </p>
+                    
+                    <ul class="game-features">
+                        <li>🌟 Play as the pre-sales master Marley</li>
+                        <li>🎯 Point-and-shoot leadership projectiles</li>
+                        <li>👥 Manage all 13 amazing team members</li>
+                        <li>💪 Deploy motivational boost waves</li>
+                        <li>📊 Advanced team morale system</li>
+                    </ul>
+                    
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="marley-plays">634</div>
+                            <div class="stat-label">Total Plays</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="marley-high">12,890</div>
+                            <div class="stat-label">High Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">⭐⭐⭐⭐⭐</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+                    
+                    <a href="marleys-management-mayhem.html" class="play-button">Lead the Team</a>
+                </div>
+
+                <!-- Theresa's Chase Game -->
+                <div class="game-card chase" data-category="arcade">
+                    <div class="game-header">
+                        <div class="game-icon">🏃‍♀️</div>
+                        <div>
+                            <h3 class="game-title">Theresa's Clari Chase</h3>
+                            <span class="game-category">Arcade</span>
+                        </div>
+                    </div>
+                    
+                    <p class="game-description">
+                        Help Sales Ops hero Theresa chase down the elusive RVPs to collect those missing Clari reports in this Pac-Man inspired adventure!
+                    </p>
+                    
+                    <ul class="game-features">
+                        <li>💃 Play as the stylish Theresa</li>
+                        <li>😠😏🤔 Chase personality-rich RVPs</li>
+                        <li>📧 Collect power-up email reminders</li>
+                        <li>📊 Classic Pac-Man style gameplay</li>
+                        <li>💬 Authentic Theresa popup quotes</li>
+                    </ul>
+                    
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="theresa-plays">721</div>
+                            <div class="stat-label">Total Plays</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="theresa-high">9,340</div>
+                            <div class="stat-label">High Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">⭐⭐⭐⭐⭐</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+                    
+                    <a href="theresas-clari-chase.html" class="play-button">Chase RVPs</a>
+                </div>
+
+                <!-- Coming Soon Game 1 -->
+                <div class="game-card coming-soon" data-category="coming-soon">
+                    <div class="game-header">
+                        <div class="game-icon">🏠</div>
+                        <div>
+                            <h3 class="game-title">The Great British Property Game</h3>
+                            <span class="game-category">Strategy</span>
+                        </div>
+                    </div>
+                    
+                    <p class="game-description">
+                        Climb the UK property ladder while navigating mortgage madness, stamp duty traps, and interest rate spikes in this exciting strategy game!
+                    </p>
+                    
+                    <ul class="game-features">
+                        <li>🏘️ Navigate the UK property market</li>
+                        <li>💰 Collect deposits and avoid stamp duty</li>
+                        <li>📈 Dodge interest rate spikes</li>
+                        <li>🏦 Battle mortgage underwriters</li>
+                        <li>⚖️ Survive gazumping attacks</li>
+                    </ul>
+                    
+                    <button class="play-button disabled">Coming Soon</button>
+                    <div class="coming-soon-overlay">🚧 Under Development 🚧</div>
+                </div>
+
+                <!-- Coming Soon Game 2 -->
+                <div class="game-card coming-soon" data-category="coming-soon">
+                    <div class="game-header">
+                        <div class="game-icon">🎯</div>
+                        <div>
+                            <h3 class="game-title">Team Tournament Mode</h3>
+                            <span class="game-category">Multiplayer</span>
+                        </div>
+                    </div>
+                    
+                    <p class="game-description">
+                        Compete in team-based tournaments across all games, with seasonal championships and special event challenges!
+                    </p>
+                    
+                    <ul class="game-features">
+                        <li>🏆 Seasonal tournaments</li>
+                        <li>👥 Team vs team competitions</li>
+                        <li>🎪 Special event challenges</li>
+                        <li>🥇 Championship leaderboards</li>
+                        <li>🎁 Unlockable rewards</li>
+                    </ul>
+                    
+                    <button class="play-button disabled">Coming Soon</button>
+                    <div class="coming-soon-overlay">🚧 In Planning 🚧</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="../js/navigation.js"></script>
+    <script>
+        // Category filtering
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const gameCards = document.querySelectorAll('.game-card');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    // Update active filter
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show/hide games
+                    gameCards.forEach(card => {
+                        if (category === 'all' || card.getAttribute('data-category') === category) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Load game statistics from localStorage
+            loadGameStats();
+        });
+
+        function loadGameStats() {
+            // Load and display game statistics from localStorage
+            const stats = JSON.parse(localStorage.getItem('gameStats')) || {};
+            
+            // Update displayed stats if available
+            Object.keys(stats).forEach(gameId => {
+                const playsElement = document.getElementById(`${gameId}-plays`);
+                const highElement = document.getElementById(`${gameId}-high`);
+                
+                if (playsElement && stats[gameId].plays) {
+                    playsElement.textContent = stats[gameId].plays.toLocaleString();
+                }
+                
+                if (highElement && stats[gameId].highScore) {
+                    highElement.textContent = stats[gameId].highScore.toLocaleString();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
