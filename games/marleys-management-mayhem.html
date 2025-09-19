@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marley's Management Mayhem</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        .game-container {
+            text-align: center;
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #ff6b6b;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .game-title {
+            font-size: 28px;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 5px;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 15px #ff6b6b; }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 25px #ff6b6b, 0 0 35px #ff6b6b; }
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #ffd93d;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        canvas {
+            border: 3px solid #6bcf7f;
+            background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(107, 207, 127, 0.4);
+        }
+
+        .controls {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #ecf0f1;
+            line-height: 1.4;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: rgba(107, 207, 127, 0.3);
+            padding: 5px 8px;
+            border-radius: 5px;
+            border: 1px solid #6bcf7f;
+            margin: 2px;
+        }
+
+        .morale-bar {
+            background: rgba(255, 107, 107, 0.3);
+            border: 1px solid #ff6b6b;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(231, 76, 60, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            border: 3px solid #c0392b;
+            display: none;
+            z-index: 1000;
+        }
+
+        .restart-btn, .back-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover, .back-btn:hover {
+            background: #2ecc71;
+        }
+
+        .back-btn {
+            background: #3498db;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background: #5dade2;
+        }
+
+        .victory {
+            background: rgba(39, 174, 96, 0.95);
+            border: 3px solid #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-title">👩‍💼 MARLEY'S MANAGEMENT MAYHEM 👩‍💼</div>
+        <div class="subtitle">"The Pre-Sales Master in Action"</div>
+        
+        <canvas id="gameCanvas" width="700" height="500"></canvas>
+        
+        <div class="stats">
+            <div class="stat">Score: <span id="score">0</span></div>
+            <div class="stat">Level: <span id="level">1</span></div>
+            <div class="stat morale-bar">Team Morale: <span id="morale">100</span>%</div>
+            <div class="stat">Crises Handled: <span id="crises">0</span></div>
+        </div>
+        
+        <div class="controls">
+            <strong>MARLEY:</strong> Arrow Keys to move, SPACE for Motivational Boost, CLICK to shoot Leadership Projectiles! 🎯<br>
+            Support your MEGA team: Oscar👑, Emily🔥, Matthias🧠, Rich🦸‍♂️, Ross⚽, Clement😎, Queen Rania👸, Ali☕, Nicholas⭐, Mr Manager Rob👨‍💼, Adrien🔄, Arun🥃, Arsh💪<br>
+            Keep everyone motivated AND take down crises with precise leadership firepower!
+        </div>
+
+        <button class="back-btn" onclick="goHome()">← Back to Game Menu</button>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div id="gameOverTitle">💔 TEAM BURNOUT! 💔</div>
+        <div id="gameOverText">The team morale has hit rock bottom!</div>
+        <div>"Don't worry team, we'll bounce back stronger!" - Marley</div>
+        <div>Final Score: <span id="finalScore">0</span></div>
+        <button class="restart-btn" onclick="restartGame()">Rally the Team Again!</button>
+        <button class="back-btn" onclick="goHome()">← Back to Menu</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        let game = {
+            marley: {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                width: 40,
+                height: 40,
+                speed: 5,
+                lastBoost: 0,
+                lastShot: 0
+            },
+            teamMembers: [],
+            crises: [],
+            projectiles: [],
+            motivationBoosts: [],
+            score: 0,
+            level: 1,
+            teamMorale: 100,
+            crisesHandled: 0,
+            gameRunning: true,
+            spawnTimer: 0,
+            gameTime: 0
+        };
+
+        // Input handling
+        const keys = {};
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('keydown', (e) => keys[e.key] = true);
+        document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('click', (e) => {
+            fireLeadershipProjectile();
+        });
+
+        // Team member data
+        const teamData = [
+            { name: 'Oscar', emoji: '👑', color: '#f39c12', specialty: 'Sass Solutions' },
+            { name: 'Emily', emoji: '🔥', color: '#e74c3c', specialty: 'Strategy' },
+            { name: 'Matthias', emoji: '🧠', color: '#3498db', specialty: 'German Logic' },
+            { name: 'Rich', emoji: '🦸‍♂️', color: '#9b59b6', specialty: 'Cool Defense' },
+            { name: 'Ross', emoji: '⚽', color: '#27ae60', specialty: 'Style & Solutions' },
+            { name: 'Clement', emoji: '😎', color: '#34495e', specialty: 'Smooth Operations' },
+            { name: 'Rania', emoji: '👸', color: '#8e44ad', specialty: 'Royal Excellence' },
+            { name: 'Ali', emoji: '☕', color: '#d35400', specialty: 'Technical Wizardry' },
+            { name: 'Nicholas', emoji: '⭐', color: '#c0392b', specialty: 'Go-Getter Energy' },
+            { name: 'Rob', emoji: '👨‍💼', color: '#2ecc71', specialty: 'Lovable Management' },
+            { name: 'Adrien', emoji: '🔄', color: '#16a085', specialty: 'FullCircl Mastery' },
+            { name: 'Arun', emoji: '🥃', color: '#f39c12', specialty: 'Whisky Wisdom' },
+            { name: 'Arsh', emoji: '💪', color: '#e67e22', specialty: 'Fitness Power' }
+        ];
+
+        // Initialize team members
+        function initTeam() {
+            game.teamMembers = [];
+            teamData.forEach((member, index) => {
+                const row = Math.floor(index / 5);
+                const col = index % 5;
+                game.teamMembers.push({
+                    x: 60 + (col * 120),
+                    y: 60 + (row * 120),
+                    width: 32,
+                    height: 32,
+                    name: member.name,
+                    emoji: member.emoji,
+                    color: member.color,
+                    specialty: member.specialty,
+                    stress: 0,
+                    maxStress: 100,
+                    lastStressed: 0
+                });
+            });
+        }
+
+        // Spawn crisis
+        function spawnCrisis() {
+            const crisisTypes = [
+                { type: 'deadline', symbol: '⏰', speed: 1, stress: 15, points: 20, health: 1 },
+                { type: 'client', symbol: '😤', speed: 1.5, stress: 20, points: 30, health: 2 },
+                { type: 'technical', symbol: '🔧', speed: 1.2, stress: 25, points: 40, health: 3 }
+            ];
+            
+            let crisis = crisisTypes[Math.floor(Math.random() * crisisTypes.length)];
+            
+            // Spawn from different directions to hit all team members
+            const spawnSide = Math.random();
+            let startX, startY, targetX, targetY;
+            
+            if (spawnSide < 0.5) {
+                // Spawn from right side (original)
+                startX = canvas.width;
+                startY = Math.random() * (canvas.height - 100) + 50;
+                targetX = -crisis.speed;
+                targetY = 0;
+            } else {
+                // Spawn from top/bottom targeting specific team members
+                const randomMember = game.teamMembers[Math.floor(Math.random() * game.teamMembers.length)];
+                if (Math.random() < 0.5) {
+                    // From top
+                    startX = randomMember.x + Math.random() * 100 - 50;
+                    startY = -35;
+                    targetX = 0;
+                    targetY = crisis.speed;
+                } else {
+                    // From bottom
+                    startX = randomMember.x + Math.random() * 100 - 50;
+                    startY = canvas.height;
+                    targetX = 0;
+                    targetY = -crisis.speed;
+                }
+            }
+            
+            game.crises.push({
+                x: startX,
+                y: startY,
+                width: 35,
+                height: 35,
+                speedX: targetX,
+                speedY: targetY,
+                baseSpeed: crisis.speed + (game.level * 0.2),
+                stress: crisis.stress,
+                symbol: crisis.symbol,
+                points: crisis.points,
+                type: crisis.type,
+                health: crisis.health,
+                maxHealth: crisis.health,
+                lastDamage: 0
+            });
+        }
+
+        // Marley's leadership projectiles
+        function fireLeadershipProjectile() {
+            const now = Date.now();
+            if (now - game.marley.lastShot < 300) return;
+            
+            game.marley.lastShot = now;
+            
+            // Calculate angle to mouse position
+            const dx = mouseX - (game.marley.x + game.marley.width/2);
+            const dy = mouseY - (game.marley.y + game.marley.height/2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > 0) {
+                game.projectiles.push({
+                    x: game.marley.x + game.marley.width / 2,
+                    y: game.marley.y + game.marley.height / 2,
+                    width: 10,
+                    height: 10,
+                    speedX: (dx / distance) * 12,
+                    speedY: (dy / distance) * 12,
+                    damage: 1,
+                    type: 'leadership',
+                    color: '#ffd93d'
+                });
+            }
+        }
+
+        // Motivational boost
+        function createMotivationalBoost() {
+            const now = Date.now();
+            if (now - game.marley.lastBoost < 1000) return;
+            
+            game.marley.lastBoost = now;
+            
+            // Create boost effect around Marley
+            game.motivationBoosts.push({
+                x: game.marley.x,
+                y: game.marley.y,
+                radius: 10,
+                maxRadius: 80,
+                power: 30,
+                life: 60
+            });
+        }
+
+        // Collision detection
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        // Check if point is in circle
+        function pointInCircle(px, py, cx, cy, radius) {
+            const dx = px - cx;
+            const dy = py - cy;
+            return dx * dx + dy * dy <= radius * radius;
+        }
+
+        // Update game logic
+        function update() {
+            if (!game.gameRunning) return;
+
+            game.gameTime++;
+
+            // Move Marley
+            if (keys['ArrowUp'] && game.marley.y > 0) game.marley.y -= game.marley.speed;
+            if (keys['ArrowDown'] && game.marley.y < canvas.height - game.marley.height) game.marley.y += game.marley.speed;
+            if (keys['ArrowLeft'] && game.marley.x > 0) game.marley.x -= game.marley.speed;
+            if (keys['ArrowRight'] && game.marley.x < canvas.width - game.marley.width) game.marley.x += game.marley.speed;
+            if (keys[' ']) createMotivationalBoost();
+
+            // Spawn crises
+            game.spawnTimer++;
+            if (game.spawnTimer % Math.max(120 - game.level * 10, 60) === 0) {
+                spawnCrisis();
+            }
+
+            // Update projectiles
+            game.projectiles.forEach((projectile, index) => {
+                projectile.x += projectile.speedX;
+                projectile.y += projectile.speedY;
+                
+                // Remove if off screen
+                if (projectile.x < 0 || projectile.x > canvas.width || 
+                    projectile.y < 0 || projectile.y > canvas.height) {
+                    game.projectiles.splice(index, 1);
+                    return;
+                }
+
+                // Check collision with crises
+                game.crises.forEach((crisis, crisisIndex) => {
+                    if (checkCollision(projectile, crisis)) {
+                        crisis.health -= projectile.damage;
+                        crisis.lastDamage = game.gameTime;
+                        game.projectiles.splice(index, 1);
+                        
+                        if (crisis.health <= 0) {
+                            game.score += crisis.points;
+                            game.crisesHandled++;
+                            game.crises.splice(crisisIndex, 1);
+                        }
+                        return;
+                    }
+                });
+            });
+
+            // Update motivational boosts
+            game.motivationBoosts.forEach((boost, index) => {
+                boost.radius += 2;
+                boost.life--;
+                
+                if (boost.life <= 0 || boost.radius >= boost.maxRadius) {
+                    game.motivationBoosts.splice(index, 1);
+                    return;
+                }
+
+                // Check if boost helps team members
+                game.teamMembers.forEach(member => {
+                    if (pointInCircle(member.x + member.width/2, member.y + member.height/2, 
+                                     boost.x + 20, boost.y + 20, boost.radius)) {
+                        member.stress = Math.max(0, member.stress - 1);
+                    }
+                });
+            });
+
+            // Update crises
+            game.crises.forEach((crisis, index) => {
+                crisis.x += crisis.speedX * crisis.baseSpeed;
+                crisis.y += crisis.speedY * crisis.baseSpeed;
+                
+                // Check collision with team members
+                game.teamMembers.forEach(member => {
+                    if (checkCollision(crisis, member)) {
+                        member.stress += crisis.stress;
+                        member.lastStressed = game.gameTime;
+                        game.crises.splice(index, 1);
+                        return;
+                    }
+                });
+
+                // Check if Marley intercepts the crisis
+                if (checkCollision(crisis, game.marley)) {
+                    game.score += crisis.points;
+                    game.crisesHandled++;
+                    game.crises.splice(index, 1);
+                    return;
+                }
+
+                // Remove if off screen
+                if (crisis.x + crisis.width < -50 || crisis.x > canvas.width + 50 || 
+                    crisis.y + crisis.height < -50 || crisis.y > canvas.height + 50) {
+                    game.crises.splice(index, 1);
+                }
+            });
+
+            // Update team members stress and calculate morale
+            let totalStress = 0;
+            game.teamMembers.forEach(member => {
+                // Gradually reduce stress over time
+                if (game.gameTime % 60 === 0 && member.stress > 0) {
+                    member.stress = Math.max(0, member.stress - 2);
+                }
+                totalStress += member.stress;
+            });
+
+            // Calculate team morale (inverse of average stress)
+            const averageStress = totalStress / game.teamMembers.length;
+            game.teamMorale = Math.max(0, 100 - averageStress);
+
+            // Level progression
+            if (game.crisesHandled >= game.level * 5) {
+                game.level++;
+                game.teamMorale = Math.min(100, game.teamMorale + 20); // Level up bonus
+            }
+
+            // Check game over
+            if (game.teamMorale <= 0) {
+                gameOver(false);
+            }
+
+            // Check victory condition
+            if (game.level >= 10) {
+                gameOver(true);
+            }
+
+            // Update UI
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('level').textContent = game.level;
+            document.getElementById('morale').textContent = Math.floor(game.teamMorale);
+            document.getElementById('crises').textContent = game.crisesHandled;
+        }
+
+        // Render game
+        function render() {
+            // Clear canvas
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#34495e');
+            gradient.addColorStop(1, '#2c3e50');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (!game.gameRunning) return;
+
+            // Draw Marley (the boss!)
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(game.marley.x, game.marley.y, game.marley.width, game.marley.height);
+            
+            // Boss badge
+            ctx.fillStyle = '#ffd93d';
+            ctx.fillRect(game.marley.x + 5, game.marley.y - 8, 30, 8);
+            
+            // Label
+            ctx.fillStyle = 'white';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('MARLEY 🌟', game.marley.x + game.marley.width/2, game.marley.y - 12);
+
+            // Draw team members
+            game.teamMembers.forEach(member => {
+                // Flash red when stressed
+                if (game.gameTime - member.lastStressed < 30) {
+                    ctx.fillStyle = '#ffffff';
+                } else {
+                    ctx.fillStyle = member.color;
+                }
+                ctx.fillRect(member.x, member.y, member.width, member.height);
+                
+                // Draw emoji
+                ctx.fillStyle = 'white';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(member.emoji, member.x + member.width/2, member.y + member.height/2 + 5);
+                
+                // Name label
+                ctx.font = '8px Arial';
+                ctx.fillText(member.name, member.x + member.width/2, member.y - 5);
+                
+                // Stress bar
+                if (member.stress > 0) {
+                    const stressWidth = 32 * (member.stress / member.maxStress);
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillRect(member.x, member.y - 15, 32, 4);
+                    ctx.fillStyle = '#ff6b6b';
+                    ctx.fillRect(member.x, member.y - 15, stressWidth, 4);
+                }
+            });
+
+            // Draw crises
+            game.crises.forEach(crisis => {
+                // Flash white when hit
+                if (game.gameTime - crisis.lastDamage < 5) {
+                    ctx.fillStyle = '#ffffff';
+                } else {
+                    ctx.fillStyle = '#e74c3c';
+                }
+                ctx.fillRect(crisis.x, crisis.y, crisis.width, crisis.height);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(crisis.symbol, crisis.x + crisis.width/2, crisis.y + crisis.height/2 + 6);
+                
+                // Health bar for multi-hit crises
+                if (crisis.maxHealth > 1) {
+                    const healthWidth = 35 * (crisis.health / crisis.maxHealth);
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillRect(crisis.x, crisis.y - 8, 35, 4);
+                    ctx.fillStyle = '#27ae60';
+                    ctx.fillRect(crisis.x, crisis.y - 8, healthWidth, 4);
+                }
+            });
+
+            // Draw projectiles
+            game.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.fillRect(projectile.x, projectile.y, projectile.width, projectile.height);
+                
+                // Add glow effect for leadership projectiles
+                if (projectile.type === 'leadership') {
+                    ctx.shadowColor = projectile.color;
+                    ctx.shadowBlur = 8;
+                    ctx.fillRect(projectile.x, projectile.y, projectile.width, projectile.height);
+                    ctx.shadowBlur = 0;
+                }
+            });
+
+            // Draw crosshair for aiming
+            ctx.strokeStyle = '#ffd93d';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(mouseX - 15, mouseY);
+            ctx.lineTo(mouseX + 15, mouseY);
+            ctx.moveTo(mouseX, mouseY - 15);
+            ctx.lineTo(mouseX, mouseY + 15);
+            ctx.stroke();
+
+            // Draw motivational boosts
+            game.motivationBoosts.forEach(boost => {
+                ctx.strokeStyle = `rgba(255, 215, 61, ${1 - boost.radius / boost.maxRadius})`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(boost.x + 20, boost.y + 20, boost.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Sparkles
+                ctx.fillStyle = '#ffd93d';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('✨', boost.x + 20, boost.y + 20);
+            });
+        }
+
+        // Game over
+        function gameOver(victory) {
+            game.gameRunning = false;
+            document.getElementById('finalScore').textContent = game.score;
+            
+            if (victory) {
+                document.getElementById('gameOverTitle').textContent = '🎉 MANAGEMENT MASTER! 🎉';
+                document.getElementById('gameOverText').textContent = 'You\'ve successfully led the team through all challenges!';
+                document.getElementById('gameOver').classList.add('victory');
+            } else {
+                document.getElementById('gameOverTitle').textContent = '💔 TEAM BURNOUT! 💔';
+                document.getElementById('gameOverText').textContent = 'The team morale has hit rock bottom!';
+                document.getElementById('gameOver').classList.remove('victory');
+            }
+            
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        // Restart game
+        function restartGame() {
+            game = {
+                marley: {
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    width: 40,
+                    height: 40,
+                    speed: 5,
+                    lastBoost: 0,
+                    lastShot: 0
+                },
+                teamMembers: [],
+                crises: [],
+                projectiles: [],
+                motivationBoosts: [],
+                score: 0,
+                level: 1,
+                teamMorale: 100,
+                crisesHandled: 0,
+                gameRunning: true,
+                spawnTimer: 0,
+                gameTime: 0
+            };
+            
+            initTeam();
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        // Go back to main menu
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game
+        initTeam();
+        gameLoop();
+
+        console.log("🌟 Welcome to Marley's Management Mayhem! The ULTIMATE dream team is assembled: Oscar👑, Emily🔥, Matthias🧠, Rich🦸‍♂️, Ross⚽, Clement😎, Queen Rania👸, Ali☕, Nicholas⭐, Mr Manager Rob👨‍💼, Adrien🔄, Arun🥃, Arsh💪! This is LEGENDARY! 🚀");
+    </script>
+</body>
+</html>
