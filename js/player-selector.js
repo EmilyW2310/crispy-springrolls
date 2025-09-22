@@ -17,7 +17,8 @@ const TEAM_MEMBERS = [
     { id: 'arun', name: 'Arun', emoji: '🥃', color: '#f39c12', title: 'Whisky Wisdom' },
     { id: 'arsh', name: 'Arsh', emoji: '💪', color: '#e67e22', title: 'Fitness Champion' },
     { id: 'lucia', name: 'Lucia', emoji: '💃🏻', color: '#ff6b9d', title: 'Spanish Creativity' },
-    { id: 'theresa', name: 'Theresa', emoji: '📊', color: '#3498db', title: 'Sales Ops Hero' }
+    { id: 'theresa', name: 'Theresa', emoji: '📊', color: '#3498db', title: 'Sales Ops Hero' },
+    { id: 'katie', name: 'Katie', emoji: '🏢', color: '#1abc9c', title: 'Regional Office Manager' }
 ];
 
 // Current player data
