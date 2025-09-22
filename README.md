@@ -1,3 +1,3 @@
 # crispy-springrolls
-A gaming universe specifically about Oscar and Emily
-Also featuring everyone else
+A gaming universe specifically about Oscar and Emily...
+which also features everyone else.
