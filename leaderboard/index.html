@@ -196,6 +196,16 @@
             opacity: 0.9;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #bdc3c7;
+            font-style: italic;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            border: 2px dashed #3498db;
+        }
+
         @media (max-width: 768px) {
             .leaderboard-grid {
                 grid-template-columns: 1fr;
@@ -255,15 +265,15 @@
                 <h2 style="margin-bottom: 1rem; font-size: 2rem;">🎮 Gaming Universe Stats</h2>
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-number" id="totalPlays">3,494</div>
+                        <div class="stat-number" id="totalPlays">0</div>
                         <div class="stat-label">Total Games Played</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number" id="totalPlayers">13</div>
-                        <div class="stat-label">Active Players</div>
+                        <div class="stat-number" id="totalPlayers">16</div>
+                        <div class="stat-label">Team Members</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number" id="totalScore">87,432</div>
+                        <div class="stat-number" id="totalScore">0</div>
                         <div class="stat-label">Combined Score</div>
                     </div>
                     <div class="stat-box">
@@ -279,7 +289,7 @@
                 <button class="tab-btn" data-game="oscar-emily">🛡️ Oscar & Emily</button>
                 <button class="tab-btn" data-game="super-oscar">👑 Super Oscar</button>
                 <button class="tab-btn" data-game="marley">👩‍💼 Marley's Management</button>
-                <button class="tab-btn" data-game="theresa">🏃‍♀️ Theresa's Chase</button>
+                <button class="tab-btn" data-game="theresa">📊 Theresa's Chase</button>
             </div>
 
             <!-- Leaderboards -->
@@ -291,45 +301,8 @@
                         <span id="currentGameTitle">Overall High Scores</span>
                     </h3>
                     <ul class="score-list" id="highScoreList">
-                        <li class="score-item first">
-                            <div class="player-info">
-                                <span class="player-rank">1</span>
-                                <span class="player-emoji">👑</span>
-                                <span class="player-name">Oscar</span>
-                            </div>
-                            <span class="player-score">15,420</span>
-                        </li>
-                        <li class="score-item second">
-                            <div class="player-info">
-                                <span class="player-rank">2</span>
-                                <span class="player-emoji">🔥</span>
-                                <span class="player-name">Emily</span>
-                            </div>
-                            <span class="player-score">14,850</span>
-                        </li>
-                        <li class="score-item third">
-                            <div class="player-info">
-                                <span class="player-rank">3</span>
-                                <span class="player-emoji">🌟</span>
-                                <span class="player-name">Marley</span>
-                            </div>
-                            <span class="player-score">13,290</span>
-                        </li>
-                        <li class="score-item">
-                            <div class="player-info">
-                                <span class="player-rank">4</span>
-                                <span class="player-emoji">💃</span>
-                                <span class="player-name">Theresa</span>
-                            </div>
-                            <span class="player-score">12,100</span>
-                        </li>
-                        <li class="score-item">
-                            <div class="player-info">
-                                <span class="player-rank">5</span>
-                                <span class="player-emoji">⭐</span>
-                                <span class="player-name">Nicholas</span>
-                            </div>
-                            <span class="player-score">11,750</span>
+                        <li class="empty-state">
+                            🎮 No scores yet! Be the first to play and claim the top spot! 🏆
                         </li>
                     </ul>
                 </div>
@@ -340,46 +313,9 @@
                         <span>⚡</span>
                         <span>Recent Activity</span>
                     </h3>
-                    <ul class="score-list">
-                        <li class="score-item">
-                            <div class="player-info">
-                                <span class="player-emoji">👑</span>
-                                <span class="player-name">Oscar</span>
-                                <span style="font-size: 0.8rem; opacity: 0.7;">2 min ago</span>
-                            </div>
-                            <span class="player-score">8,940</span>
-                        </li>
-                        <li class="score-item">
-                            <div class="player-info">
-                                <span class="player-emoji">💃</span>
-                                <span class="player-name">Theresa</span>
-                                <span style="font-size: 0.8rem; opacity: 0.7;">5 min ago</span>
-                            </div>
-                            <span class="player-score">7,230</span>
-                        </li>
-                        <li class="score-item">
-                            <div class="player-info">
-                                <span class="player-emoji">🧠</span>
-                                <span class="player-name">Matthias</span>
-                                <span style="font-size: 0.8rem; opacity: 0.7;">12 min ago</span>
-                            </div>
-                            <span class="player-score">6,820</span>
-                        </li>
-                        <li class="score-item">
-                            <div class="player-info">
-                                <span class="player-emoji">🦸‍♂️</span>
-                                <span class="player-name">Rich</span>
-                                <span style="font-size: 0.8rem; opacity: 0.7;">18 min ago</span>
-                            </div>
-                            <span class="player-score">9,150</span>
-                        </li>
-                        <li class="score-item">
-                            <div class="player-info">
-                                <span class="player-emoji">👸</span>
-                                <span class="player-name">Queen Rania</span>
-                                <span style="font-size: 0.8rem; opacity: 0.7;">25 min ago</span>
-                            </div>
-                            <span class="player-score">10,300</span>
+                    <ul class="score-list" id="recentActivityList">
+                        <li class="empty-state">
+                            📊 No recent activity yet! Start playing to see the action here! ⚡
                         </li>
                     </ul>
                 </div>
@@ -387,7 +323,8 @@
 
             <!-- Achievements Section -->
             <div style="margin-top: 3rem;">
-                <h2 style="text-align: center; font-size: 2.5rem; color: #f39c12; margin-bottom: 2rem;">🏅 Achievements Unlocked</h2>
+                <h2 style="text-align: center; font-size: 2.5rem; color: #f39c12; margin-bottom: 2rem;">🏅 Achievement Goals</h2>
+                <p style="text-align: center; color: #bdc3c7; margin-bottom: 2rem; font-style: italic;">Unlock these achievements as you play!</p>
                 
                 <div class="achievement-grid">
                     <div class="achievement-card">
@@ -415,6 +352,12 @@
                     </div>
                     
                     <div class="achievement-card">
+                        <div class="achievement-icon">💃🏻</div>
+                        <div class="achievement-title">Creative Master</div>
+                        <div class="achievement-description">Lucia: Bring Spanish flair to any game</div>
+                    </div>
+                    
+                    <div class="achievement-card">
                         <div class="achievement-icon">⚡</div>
                         <div class="achievement-title">Speed Demon</div>
                         <div class="achievement-description">Complete any game in under 2 minutes</div>
@@ -425,32 +368,39 @@
                         <div class="achievement-title">Team Player</div>
                         <div class="achievement-description">Play all 4 games in one session</div>
                     </div>
+                    
+                    <div class="achievement-card">
+                        <div class="achievement-icon">🏆</div>
+                        <div class="achievement-title">Gaming Legend</div>
+                        <div class="achievement-description">Reach top 3 in any game leaderboard</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Weekly Champions -->
             <div style="margin-top: 3rem; text-align: center;">
-                <h2 style="font-size: 2rem; color: #f39c12; margin-bottom: 2rem;">👑 This Week's Champions</h2>
+                <h2 style="font-size: 2rem; color: #f39c12; margin-bottom: 2rem;">👑 Weekly Champions</h2>
+                <p style="color: #bdc3c7; margin-bottom: 2rem; font-style: italic;">Play games to compete for this week's championship titles!</p>
                 
                 <div class="stats-grid">
                     <div class="stat-box" style="background: linear-gradient(45deg, #e74c3c, #f39c12); padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
-                        <div class="stat-number">Oscar & Emily</div>
+                        <div class="stat-number">TBD</div>
                         <div class="stat-label">Co-op Champions</div>
                     </div>
                     <div class="stat-box" style="background: linear-gradient(45deg, #3498db, #9b59b6); padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">👑</div>
-                        <div class="stat-number">Oscar</div>
+                        <div class="stat-number">TBD</div>
                         <div class="stat-label">Arcade Master</div>
                     </div>
                     <div class="stat-box" style="background: linear-gradient(45deg, #f39c12, #e67e22); padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">👩‍💼</div>
-                        <div class="stat-number">Marley</div>
+                        <div class="stat-number">TBD</div>
                         <div class="stat-label">Management Pro</div>
                     </div>
                     <div class="stat-box" style="background: linear-gradient(45deg, #8e44ad, #9b59b6); padding: 2rem;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">💃</div>
-                        <div class="stat-number">Theresa</div>
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                        <div class="stat-number">TBD</div>
                         <div class="stat-label">Chase Champion</div>
                     </div>
                 </div>
@@ -459,55 +409,8 @@
     </div>
 
     <script src="../js/navigation.js"></script>
+    <script src="../js/player-selector.js"></script>
     <script>
-        // Game data structure
-        const gameData = {
-            'oscar-emily': {
-                name: 'Oscar & Emily: Pre-Sales Defenders',
-                icon: '🛡️',
-                scores: [
-                    { player: 'Oscar', emoji: '👑', score: 15420 },
-                    { player: 'Emily', emoji: '🔥', score: 14850 },
-                    { player: 'Marley', emoji: '🌟', score: 13290 },
-                    { player: 'Theresa', emoji: '💃', score: 12100 },
-                    { player: 'Nicholas', emoji: '⭐', score: 11750 }
-                ]
-            },
-            'super-oscar': {
-                name: 'Super Oscar: Solo Sass Adventure',
-                icon: '👑',
-                scores: [
-                    { player: 'Oscar', emoji: '👑', score: 8750 },
-                    { player: 'Rich', emoji: '🦸‍♂️', score: 7230 },
-                    { player: 'Ross', emoji: '⚽', score: 6890 },
-                    { player: 'Ali', emoji: '☕', score: 6420 },
-                    { player: 'Clement', emoji: '😎', score: 5980 }
-                ]
-            },
-            'marley': {
-                name: "Marley's Management Mayhem",
-                icon: '👩‍💼',
-                scores: [
-                    { player: 'Marley', emoji: '🌟', score: 12890 },
-                    { player: 'Rob', emoji: '👨‍💼', score: 10340 },
-                    { player: 'Emily', emoji: '🔥', score: 9870 },
-                    { player: 'Nicholas', emoji: '⭐', score: 8920 },
-                    { player: 'Matthias', emoji: '🧠', score: 8450 }
-                ]
-            },
-            'theresa': {
-                name: "Theresa's Clari Chase",
-                icon: '🏃‍♀️',
-                scores: [
-                    { player: 'Theresa', emoji: '💃', score: 9340 },
-                    { player: 'Queen Rania', emoji: '👸', score: 8760 },
-                    { player: 'Arun', emoji: '🥃', score: 7890 },
-                    { player: 'Arsh', emoji: '💪', score: 7450 },
-                    { player: 'Adrien', emoji: '🔄', score: 6980 }
-                ]
-            }
-        };
-
         document.addEventListener('DOMContentLoaded', function() {
             // Tab switching functionality
             const tabBtns = document.querySelectorAll('.tab-btn');
@@ -525,8 +428,9 @@
                 });
             });
 
-            // Load saved scores from localStorage
-            loadScores();
+            // Load real scores from localStorage
+            loadRealScores();
+            updateLeaderboard('overall');
         });
 
         function updateLeaderboard(gameKey) {
@@ -535,32 +439,42 @@
             
             if (gameKey === 'overall') {
                 titleElement.textContent = 'Overall High Scores';
-                // Show combined scores across all games
-                const allScores = [];
-                Object.values(gameData).forEach(game => {
-                    game.scores.forEach(score => {
-                        const existing = allScores.find(s => s.player === score.player);
-                        if (existing) {
-                            existing.score += score.score;
-                        } else {
-                            allScores.push({...score});
-                        }
-                    });
-                });
-                
-                allScores.sort((a, b) => b.score - a.score);
-                displayScores(allScores.slice(0, 5));
+                displayOverallScores();
             } else {
-                const game = gameData[gameKey];
-                titleElement.textContent = game.name;
-                displayScores(game.scores);
+                const gameNames = {
+                    'oscar-emily': 'Oscar & Emily: Pre-Sales Defenders',
+                    'super-oscar': 'Super Oscar: Solo Sass Adventure',
+                    'marley': 'Marley\'s Management Mayhem',
+                    'theresa': 'Theresa\'s Clari Chase'
+                };
+                titleElement.textContent = gameNames[gameKey];
+                displayGameScores(gameKey);
             }
+        }
+
+        function displayOverallScores() {
+            const scores = window.PlayerSystem ? window.PlayerSystem.getHighScores('overall') : [];
+            displayScores(scores);
+        }
+
+        function displayGameScores(gameId) {
+            const scores = window.PlayerSystem ? window.PlayerSystem.getHighScores(gameId) : [];
+            displayScores(scores);
         }
 
         function displayScores(scores) {
             const listElement = document.getElementById('highScoreList');
-            listElement.innerHTML = '';
             
+            if (!scores || scores.length === 0) {
+                listElement.innerHTML = `
+                    <li class="empty-state">
+                        🎮 No scores yet! Be the first to play and claim the top spot! 🏆
+                    </li>
+                `;
+                return;
+            }
+            
+            listElement.innerHTML = '';
             scores.forEach((score, index) => {
                 const rankClass = index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : '';
                 
@@ -568,8 +482,8 @@
                     <li class="score-item ${rankClass}">
                         <div class="player-info">
                             <span class="player-rank">${index + 1}</span>
-                            <span class="player-emoji">${score.emoji}</span>
-                            <span class="player-name">${score.player}</span>
+                            <span class="player-emoji">${score.playerEmoji}</span>
+                            <span class="player-name">${score.playerName}</span>
                         </div>
                         <span class="player-score">${score.score.toLocaleString()}</span>
                     </li>
@@ -577,25 +491,68 @@
             });
         }
 
-        function loadScores() {
-            // Load any saved scores from localStorage
-            const savedScores = localStorage.getItem('gameHighScores');
-            if (savedScores) {
-                // Merge with default data
-                const saved = JSON.parse(savedScores);
-                Object.keys(saved).forEach(gameKey => {
-                    if (gameData[gameKey]) {
-                        // Update with saved high scores
-                        gameData[gameKey].scores = saved[gameKey].scores || gameData[gameKey].scores;
-                    }
-                });
-            }
+        function loadRealScores() {
+            // Load actual statistics from localStorage
+            const gameStats = JSON.parse(localStorage.getItem('gameStats')) || {};
+            const allScores = JSON.parse(localStorage.getItem('gameScores')) || [];
             
-            // Display overall scores by default
-            updateLeaderboard('overall');
+            // Update total plays
+            const totalPlays = allScores.length;
+            document.getElementById('totalPlays').textContent = totalPlays.toLocaleString();
+            
+            // Update total combined score
+            const totalScore = allScores.reduce((sum, score) => sum + score.score, 0);
+            document.getElementById('totalScore').textContent = totalScore.toLocaleString();
+            
+            // Update recent activity
+            updateRecentActivity(allScores);
         }
 
-        console.log("🏆 Welcome to the Hall of Fame! May the best pre-sales legend win! 🎮");
+        function updateRecentActivity(allScores) {
+            const recentList = document.getElementById('recentActivityList');
+            const recentScores = allScores.slice(-5).reverse(); // Last 5 scores, newest first
+            
+            if (recentScores.length === 0) {
+                recentList.innerHTML = `
+                    <li class="empty-state">
+                        📊 No recent activity yet! Start playing to see the action here! ⚡
+                    </li>
+                `;
+                return;
+            }
+            
+            recentList.innerHTML = '';
+            recentScores.forEach(score => {
+                const timeAgo = getTimeAgo(new Date(score.timestamp));
+                recentList.innerHTML += `
+                    <li class="score-item">
+                        <div class="player-info">
+                            <span class="player-emoji">${score.playerEmoji}</span>
+                            <span class="player-name">${score.playerName}</span>
+                            <span style="font-size: 0.8rem; opacity: 0.7;">${timeAgo}</span>
+                        </div>
+                        <span class="player-score">${score.score.toLocaleString()}</span>
+                    </li>
+                `;
+            });
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours}h ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays}d ago`;
+        }
+
+        console.log("🏆 Leaderboard loaded! Ready to track real gaming achievements! 🎮");
     </script>
 </body>
 </html>
