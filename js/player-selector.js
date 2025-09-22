@@ -1,6 +1,6 @@
-// Oscar's Gaming Universe - Player Selection System
+// Oscar's Gaming Universe - Player Selection System (CORRECTED)
 
-// Team member data
+// Team member data - CORRECT EMOJIS
 const TEAM_MEMBERS = [
     { id: 'oscar', name: 'Oscar', emoji: '👑', color: '#f39c12', title: 'Sassiest Solution Architect' },
     { id: 'emily', name: 'Emily', emoji: '🔥', color: '#e91e63', title: 'Strategic Powerhouse' },
@@ -17,7 +17,7 @@ const TEAM_MEMBERS = [
     { id: 'arun', name: 'Arun', emoji: '🥃', color: '#f39c12', title: 'Whisky Wisdom' },
     { id: 'arsh', name: 'Arsh', emoji: '💪', color: '#e67e22', title: 'Fitness Champion' },
     { id: 'lucia', name: 'Lucia', emoji: '💃🏻', color: '#ff6b9d', title: 'Spanish Creativity' },
-    { id: 'theresa', name: 'Theresa', emoji: '💃', color: '#3498db', title: 'Sales Ops Hero' }
+    { id: 'theresa', name: 'Theresa', emoji: '📊', color: '#3498db', title: 'Sales Ops Hero' }
 ];
 
 // Current player data
@@ -66,7 +66,7 @@ function createPlayerSelectorModal() {
             background: linear-gradient(145deg, #2c3e50, #34495e);
             border-radius: 25px;
             padding: 3rem;
-            max-width: 600px;
+            max-width: 800px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
@@ -91,7 +91,7 @@ function createPlayerSelectorModal() {
             
             <div id="playerGrid" style="
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
                 gap: 1rem;
                 margin-bottom: 2rem;
             "></div>
@@ -105,19 +105,7 @@ function createPlayerSelectorModal() {
                     border-radius: 25px;
                     font-size: 1rem;
                     cursor: pointer;
-                    margin-right: 1rem;
                 ">Play as Guest</button>
-                
-                <button id="changePlayerBtn" style="
-                    background: #3498db;
-                    color: white;
-                    border: none;
-                    padding: 1rem 2rem;
-                    border-radius: 25px;
-                    font-size: 1rem;
-                    cursor: pointer;
-                    display: none;
-                ">Change Player</button>
             </div>
         </div>
     `;
@@ -137,8 +125,8 @@ function createPlayerSelectorModal() {
         
         playerCard.innerHTML = `
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${member.emoji}</div>
-            <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 0.3rem;">${member.name}</div>
-            <div style="font-size: 0.8rem; opacity: 0.8;">${member.title}</div>
+            <div style="font-weight: bold; font-size: 1rem; margin-bottom: 0.3rem;">${member.name}</div>
+            <div style="font-size: 0.7rem; opacity: 0.8;">${member.title}</div>
         `;
         
         playerCard.addEventListener('click', () => selectPlayer(member));
@@ -193,7 +181,7 @@ function onPlayerSelected(player) {
 
 // Update UI to show current player
 function updatePlayerUI(player) {
-    // Add player info to navigation or game UI
+    // Add player info to navigation
     const navbar = document.querySelector('.navbar');
     if (navbar) {
         // Remove existing player info
@@ -272,21 +260,14 @@ window.PlayerSystem = {
     
     // Save score to localStorage
     saveScore: function(scoreData) {
-        // Get existing scores
         let allScores = JSON.parse(localStorage.getItem('gameScores')) || [];
-        
-        // Add new score
         allScores.push(scoreData);
         
-        // Keep only last 200 scores
         if (allScores.length > 200) {
             allScores = allScores.slice(-200);
         }
         
-        // Save back
         localStorage.setItem('gameScores', JSON.stringify(allScores));
-        
-        // Update high scores
         this.updateHighScores(scoreData);
     },
     
@@ -298,7 +279,6 @@ window.PlayerSystem = {
             highScores[scoreData.gameId] = [];
         }
         
-        // Add new score
         highScores[scoreData.gameId].push({
             playerId: scoreData.playerId,
             playerName: scoreData.playerName,
@@ -307,7 +287,6 @@ window.PlayerSystem = {
             date: scoreData.date
         });
         
-        // Sort by score (highest first) and keep top 10
         highScores[scoreData.gameId].sort((a, b) => b.score - a.score);
         highScores[scoreData.gameId] = highScores[scoreData.gameId].slice(0, 10);
         
@@ -318,19 +297,11 @@ window.PlayerSystem = {
     getHighScores: function(gameId) {
         const highScores = JSON.parse(localStorage.getItem('gameHighScores')) || {};
         return highScores[gameId] || [];
-    },
-    
-    // Get player's best score for a game
-    getPlayerBest: function(gameId, playerId) {
-        const scores = this.getHighScores(gameId);
-        const playerScores = scores.filter(s => s.playerId === playerId);
-        return playerScores.length > 0 ? playerScores[0].score : 0;
     }
 };
 
 // Auto-initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // Small delay to ensure page is fully loaded
     setTimeout(() => {
         const player = initPlayerSelector();
         if (player) {
@@ -344,4 +315,4 @@ window.reportPlayerScore = function(gameId, score, achievements = []) {
     return window.PlayerSystem.reportScore(gameId, score, achievements);
 };
 
-console.log("👥 Player Selection System loaded! Team members ready! 🎮");
+console.log("👥 Player Selection System loaded! All 16 team members ready! 🎮");
