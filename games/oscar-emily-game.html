@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oscar & Emily: Pre-Sales Defenders</title>
+    <script src="../js/player-selector.js"></script>
     <style>
         body {
             margin: 0;
@@ -146,11 +147,40 @@
         </div>
 
         <button class="back-btn" onclick="goHome()">← Back to Game Menu</button>
+        
+        <!-- Player Display -->
+        <div id="playerDisplay" style="
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 1rem;
+            border-radius: 15px;
+            border: 2px solid #e74c3c;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 150px;
+        ">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;" id="playerEmoji">👤</div>
+            <div style="font-weight: bold; margin-bottom: 0.3rem;" id="playerName">No Player</div>
+            <div style="font-size: 0.8rem; opacity: 0.8;" id="playerTitle">Select Player</div>
+            <button id="changePlayerBtn" style="
+                background: #e74c3c;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                cursor: pointer;
+                margin-top: 0.5rem;
+            ">Change Player</button>
+        </div>
     </div>
 
     <div class="game-over" id="gameOver">
         <div>💔 DEFEAT! 💔</div>
-        <div>The pre-sales team has been overwhelmed!</div>
+        <div id="gameOverText">The pre-sales team has been overwhelmed!</div>
         <div>"We'll strategically demolish them next time!" - Emily & Oscar</div>
         <div>Final Score: <span id="finalScore">0</span></div>
         <button class="restart-btn" onclick="restartGame()">Defend Again!</button>
@@ -492,10 +522,26 @@
             ctx.stroke();
         }
 
-        // Game over
+        // Game over with player integration
         function gameOver() {
             game.gameRunning = false;
-            document.getElementById('finalScore').textContent = game.score;
+            
+            // Report score for current player
+            const player = window.PlayerSystem ? window.PlayerSystem.getCurrentPlayer() : null;
+            if (player && window.reportPlayerScore) {
+                window.reportPlayerScore('oscar-emily', game.score);
+                
+                // Show personalized game over message
+                document.getElementById('finalScore').textContent = game.score.toLocaleString();
+                document.getElementById('gameOverText').innerHTML = `
+                    Great teamwork, ${player.name} ${player.emoji}!<br>
+                    Oscar & Emily defended valiantly!<br>
+                    Final Score: ${game.score.toLocaleString()}
+                `;
+            } else {
+                document.getElementById('finalScore').textContent = game.score;
+            }
+            
             document.getElementById('gameOver').style.display = 'block';
         }
 
@@ -536,7 +582,7 @@
 
         // Go back to main menu
         function goHome() {
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         }
 
         // Game loop
@@ -550,7 +596,39 @@
         initPresalesTeam();
         gameLoop();
 
-        console.log("🔥 Oscar & Emily: Pre-Sales Defenders is ready! Oscar brings the sass, Emily brings the strategic firepower! 💅");
+        // Player selection integration
+        window.addEventListener('playerSelected', function(event) {
+            const player = event.detail;
+            updateGamePlayerDisplay(player);
+        });
+
+        function updateGamePlayerDisplay(player) {
+            document.getElementById('playerEmoji').textContent = player.emoji;
+            document.getElementById('playerName').textContent = player.name;
+            document.getElementById('playerTitle').textContent = player.title;
+        }
+
+        document.getElementById('changePlayerBtn').addEventListener('click', function() {
+            if (window.PlayerSystem) {
+                window.PlayerSystem.changePlayer();
+            }
+        });
+
+        // Initialize player system when game loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.PlayerSystem) {
+                    const player = window.PlayerSystem.getCurrentPlayer();
+                    if (player) {
+                        updateGamePlayerDisplay(player);
+                    } else {
+                        window.PlayerSystem.showSelector();
+                    }
+                }
+            }, 1000);
+        });
+
+        console.log("🔥 Oscar & Emily: Pre-Sales Defenders with player tracking loaded! 🛡️");
     </script>
 </body>
 </html>
