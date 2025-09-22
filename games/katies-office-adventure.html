@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katie's Office Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .game-container {
+            text-align: center;
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #1abc9c;
+            box-shadow: 0 0 30px rgba(26, 188, 156, 0.5);
+        }
+
+        .game-title {
+            font-size: 28px;
+            color: #1abc9c;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 5px;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 15px #1abc9c; }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 25px #1abc9c, 0 0 35px #1abc9c; }
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        canvas {
+            border: 3px solid #16a085;
+            background: linear-gradient(180deg, #ecf0f1 0%, #bdc3c7 100%);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(22, 160, 133, 0.4);
+        }
+
+        .controls {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #ecf0f1;
+            line-height: 1.4;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: rgba(26, 188, 156, 0.3);
+            padding: 5px 8px;
+            border-radius: 5px;
+            border: 1px solid #1abc9c;
+            margin: 2px;
+        }
+
+        .happiness-stat {
+            background: rgba(39, 174, 96, 0.3);
+            border: 1px solid #27ae60;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(231, 76, 60, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            border: 3px solid #c0392b;
+            display: none;
+            z-index: 1000;
+        }
+
+        .restart-btn, .back-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover, .back-btn:hover {
+            background: #2ecc71;
+        }
+
+        .back-btn {
+            background: #3498db;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background: #5dade2;
+        }
+
+        .victory {
+            background: rgba(39, 174, 96, 0.95);
+            border: 3px solid #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-title">👑 KATIE'S OFFICE ADVENTURE 👑</div>
+        <div class="subtitle">"Slay Queen Managing the Office Kingdom!"</div>
+        
+        <canvas id="gameCanvas" width="700" height="500"></canvas>
+        
+        <div class="stats">
+            <div class="stat">Score: <span id="score">0</span></div>
+            <div class="stat">Floor: <span id="floor">1</span></div>
+            <div class="stat happiness-stat">Office Happiness: <span id="happiness">100</span>%</div>
+            <div class="stat">Problems Slayed: <span id="problems">0</span></div>
+        </div>
+        
+        <div class="controls">
+            <strong>KATIE:</strong> Arrow Keys to move, SPACEBAR to jump, ENTER to SLAY problems! 👑<br>
+            🛗 Blue platforms = Elevators, 📋 Dotted platforms = Drop through (DOWN + SPACE)!<br>
+            💅 "Honey, I don't just solve problems - I SLAY them with STYLE!" - Katie
+        </div>
+
+        <button class="back-btn" onclick="goHome()">← Back to Game Menu</button>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div id="gameOverTitle">💔 OFFICE CHAOS! 💔</div>
+        <div id="gameOverText">The office happiness has dropped too low!</div>
+        <div>"Honey, we don't just bounce back - we SLAY even harder!" - Katie</div>
+        <div>Final Score: <span id="finalScore">0</span></div>
+        <button class="restart-btn" onclick="restartGame()">Slay Again!</button>
+        <button class="back-btn" onclick="goHome()">← Back to Menu</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let game = {
+            katie: {
+                x: 50,
+                y: 400,
+                width: 35,
+                height: 35,
+                velocityX: 0,
+                velocityY: 0,
+                onGround: false,
+                speed: 6,
+                jumpPower: 16,
+                facing: 'right'
+            },
+            platforms: [],
+            obstacles: [],
+            employees: [],
+            problems: [],
+            powerUps: [],
+            particles: [],
+            score: 0,
+            floor: 1,
+            officeHappiness: 100,
+            problemsSolved: 0,
+            employeesHelped: 0,
+            gameTime: 0,
+            gameRunning: true
+        };
+
+        const GRAVITY = 0.8;
+        const TERMINAL_VELOCITY = 15;
+
+        // Input handling
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ') e.preventDefault();
+        });
+        document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+        // Create office level
+        function createLevel() {
+            game.platforms = [
+                // Ground floor
+                {x: 0, y: 460, width: 700, height: 40, type: 'floor'},
+                // Reception desks - with gaps
+                {x: 50, y: 420, width: 80, height: 20, type: 'desk'},
+                {x: 570, y: 420, width: 80, height: 20, type: 'desk'},
+                // Second floor
+                {x: 0, y: 360, width: 150, height: 20, type: 'floor'},
+                {x: 200, y: 360, width: 150, height: 20, type: 'floor'},
+                {x: 400, y: 360, width: 150, height: 20, type: 'floor'},
+                {x: 600, y: 360, width: 100, height: 20, type: 'floor'},
+                // Manager level
+                {x: 80, y: 280, width: 120, height: 20, type: 'desk'},
+                {x: 300, y: 280, width: 120, height: 20, type: 'desk'},
+                {x: 500, y: 280, width: 120, height: 20, type: 'desk'},
+                // Executive floor
+                {x: 50, y: 200, width: 200, height: 20, type: 'floor'},
+                {x: 350, y: 200, width: 200, height: 20, type: 'floor'},
+                // Top floor
+                {x: 200, y: 120, width: 300, height: 20, type: 'floor'},
+                // Elevator platforms
+                {x: 150, y: 340, width: 50, height: 20, type: 'elevator'},
+                {x: 350, y: 260, width: 50, height: 20, type: 'elevator'},
+                {x: 250, y: 180, width: 50, height: 20, type: 'elevator'},
+                // Drop-through platforms
+                {x: 500, y: 340, width: 80, height: 10, type: 'dropthrough'},
+                {x: 200, y: 260, width: 80, height: 10, type: 'dropthrough'},
+                {x: 450, y: 180, width: 80, height: 10, type: 'dropthrough'}
+            ];
+            
+            // Office obstacles
+            game.obstacles = [
+                {x: 320, y: 440, width: 30, height: 20, type: 'bureaucracy', symbol: '📋'},
+                {x: 480, y: 340, width: 25, height: 20, type: 'meeting', symbol: '🗣️'},
+                {x: 150, y: 260, width: 35, height: 20, type: 'redtape', symbol: '📎'},
+                {x: 500, y: 180, width: 30, height: 20, type: 'deadline', symbol: '⏰'}
+            ];
+            
+            // Happy employees
+            game.employees = [
+                {x: 120, y: 400, collected: false},
+                {x: 280, y: 340, collected: false},
+                {x: 450, y: 260, collected: false},
+                {x: 150, y: 180, collected: false},
+                {x: 500, y: 160, collected: false},
+                {x: 350, y: 100, collected: false}
+            ];
+            
+            // Office problems
+            game.problems = [
+                {x: 600, y: 400, solved: false, type: 'conflict', severity: 'high'},
+                {x: 200, y: 320, solved: false, type: 'efficiency', severity: 'medium'},
+                {x: 550, y: 240, solved: false, type: 'expectations', severity: 'high'},
+                {x: 80, y: 160, solved: false, type: 'coordination', severity: 'medium'}
+            ];
+            
+            // Power-ups
+            game.powerUps = [
+                {x: 400, y: 320, type: 'coffee', collected: false},
+                {x: 250, y: 240, type: 'planner', collected: false},
+                {x: 150, y: 120, type: 'smile', collected: false}
+            ];
+        }
+
+        function update() {
+            if (!game.gameRunning) return;
+            
+            game.gameTime++;
+            
+            // Katie movement
+            if (keys['ArrowLeft']) {
+                game.katie.velocityX = -game.katie.speed;
+                game.katie.facing = 'left';
+            } else if (keys['ArrowRight']) {
+                game.katie.velocityX = game.katie.speed;
+                game.katie.facing = 'right';
+            } else {
+                game.katie.velocityX *= 0.85;
+            }
+            
+            // Jumping
+            if (keys[' '] && game.katie.onGround) {
+                game.katie.velocityY = -game.katie.jumpPower;
+                game.katie.onGround = false;
+                createParticle(game.katie.x + 17, game.katie.y + 35, '💨', '#95a5a6');
+            }
+            
+            // Gravity
+            game.katie.velocityY += GRAVITY;
+            if (game.katie.velocityY > TERMINAL_VELOCITY) {
+                game.katie.velocityY = TERMINAL_VELOCITY;
+            }
+            
+            // Update position
+            game.katie.x += game.katie.velocityX;
+            game.katie.y += game.katie.velocityY;
+            
+            // Bounds
+            if (game.katie.x < 0) game.katie.x = 0;
+            if (game.katie.x > canvas.width - game.katie.width) game.katie.x = canvas.width - game.katie.width;
+            
+            // Platform collisions
+            game.katie.onGround = false;
+            game.platforms.forEach(platform => {
+                if (game.katie.x < platform.x + platform.width &&
+                    game.katie.x + game.katie.width > platform.x &&
+                    game.katie.y < platform.y + platform.height &&
+                    game.katie.y + game.katie.height > platform.y) {
+                    
+                    // Drop-through platforms
+                    if (platform.type === 'dropthrough' && keys['ArrowDown'] && keys[' ']) {
+                        return;
+                    }
+                    
+                    if (game.katie.velocityY > 0 && game.katie.y < platform.y) {
+                        game.katie.y = platform.y - game.katie.height;
+                        game.katie.velocityY = 0;
+                        game.katie.onGround = true;
+                        
+                        if (Math.random() < 0.3) {
+                            createParticle(game.katie.x + 17, game.katie.y + 35, '✨', '#1abc9c');
+                        }
+                    }
+                }
+            });
+            
+            // Collect employees
+            game.employees.forEach(employee => {
+                if (!employee.collected &&
+                    Math.abs(game.katie.x - employee.x) < 35 &&
+                    Math.abs(game.katie.y - employee.y) < 35) {
+                    employee.collected = true;
+                    game.employeesHelped++;
+                    game.score += 150;
+                    game.officeHappiness = Math.min(100, game.officeHappiness + 5);
+                    createParticle(employee.x, employee.y, '💅', '#f39c12');
+                    createParticle(employee.x + 10, employee.y - 15, '✨', '#1abc9c');
+                }
+            });
+            
+            // Tackle problems
+            if (keys['Enter']) {
+                game.problems.forEach(problem => {
+                    if (!problem.solved &&
+                        Math.abs(game.katie.x - problem.x) < 50 &&
+                        Math.abs(game.katie.y - problem.y) < 50) {
+                        problem.solved = true;
+                        game.problemsSolved++;
+                        
+                        const points = problem.severity === 'high' ? 300 : 
+                                     problem.severity === 'medium' ? 200 : 100;
+                        game.score += points;
+                        game.officeHappiness = Math.min(100, game.officeHappiness + 10);
+                        
+                        // SLAY QUEEN effects!
+                        createParticle(problem.x, problem.y, '💅', '#f39c12');
+                        createParticle(problem.x + 15, problem.y - 10, '✨', '#1abc9c');
+                        createParticle(problem.x - 15, problem.y - 10, '👑', '#f1c40f');
+                    }
+                });
+            }
+            
+            // Power-ups
+            game.powerUps.forEach(powerUp => {
+                if (!powerUp.collected &&
+                    Math.abs(game.katie.x - powerUp.x) < 30 &&
+                    Math.abs(game.katie.y - powerUp.y) < 30) {
+                    powerUp.collected = true;
+                    activatePowerUp(powerUp.type);
+                    createParticle(powerUp.x, powerUp.y, '⭐', '#1abc9c');
+                }
+            });
+            
+            // Update particles (optimized)
+            for (let i = game.particles.length - 1; i >= 0; i--) {
+                const particle = game.particles[i];
+                particle.life--;
+                particle.y -= 2;
+                particle.opacity -= 0.03; // Fade faster
+                if (particle.life <= 0 || particle.opacity <= 0) {
+                    game.particles.splice(i, 1);
+                }
+            }
+            
+            // Win condition
+            if (game.employeesHelped >= game.employees.length && game.problemsSolved >= game.problems.length) {
+                nextFloor();
+            }
+            
+            // Lose condition
+            if (game.officeHappiness <= 0) {
+                gameOver(false);
+            }
+            
+            // Update UI
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('floor').textContent = game.floor;
+            document.getElementById('happiness').textContent = Math.floor(game.officeHappiness);
+            document.getElementById('problems').textContent = game.problemsSolved;
+        }
+
+        function createParticle(x, y, emoji, color) {
+            // Limit particles to prevent lag
+            if (game.particles.length > 15) {
+                game.particles.shift(); // Remove oldest particle
+            }
+            
+            game.particles.push({
+                x: x + Math.random() * 10 - 5, // Small random offset
+                y: y,
+                emoji: emoji,
+                color: color,
+                life: 45, // Shorter life to reduce lag
+                opacity: 1
+            });
+        }
+
+        function activatePowerUp(type) {
+            switch(type) {
+                case 'coffee':
+                    game.katie.speed = 8;
+                    setTimeout(() => game.katie.speed = 6, 5000);
+                    break;
+                case 'planner':
+                    game.officeHappiness = Math.min(100, game.officeHappiness + 20);
+                    break;
+                case 'smile':
+                    game.officeHappiness = Math.min(100, game.officeHappiness + 15);
+                    for (let i = 0; i < 5; i++) {
+                        createParticle(game.katie.x + Math.random() * 30, game.katie.y + Math.random() * 30, '😊', '#f39c12');
+                    }
+                    break;
+            }
+        }
+
+        function nextFloor() {
+            game.floor++;
+            game.employeesHelped = 0;
+            game.problemsSolved = 0;
+            game.score += 1000;
+            game.officeHappiness = Math.min(100, game.officeHappiness + 25);
+            
+            game.katie.x = 50;
+            game.katie.y = 400;
+            game.katie.velocityX = 0;
+            game.katie.velocityY = 0;
+            
+            createLevel();
+        }
+
+        function render() {
+            // Office background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#ecf0f1');
+            gradient.addColorStop(1, '#bdc3c7');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (!game.gameRunning) return;
+            
+            // Draw platforms with visual cues
+            game.platforms.forEach(platform => {
+                if (platform.type === 'dropthrough') {
+                    ctx.fillStyle = '#95a5a6';
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeStyle = '#2c3e50';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+                    ctx.setLineDash([]);
+                } else if (platform.type === 'elevator') {
+                    ctx.fillStyle = '#3498db';
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🛗', platform.x + platform.width/2, platform.y + 15);
+                } else {
+                    ctx.fillStyle = platform.type === 'floor' ? '#34495e' : '#7f8c8d';
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    
+                    if (platform.type === 'desk') {
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.fillRect(platform.x + 5, platform.y - 10, platform.width - 10, 10);
+                    }
+                }
+            });
+            
+            // Draw Katie with SLAY QUEEN energy
+            ctx.fillStyle = '#1abc9c';
+            ctx.fillRect(game.katie.x, game.katie.y, game.katie.width, game.katie.height);
+            
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(game.katie.x + 5, game.katie.y + 5, 25, 20);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('💅', game.katie.x + game.katie.width/2, game.katie.y + game.katie.height/2 + 6);
+            
+            // Draw employees
+            game.employees.forEach(employee => {
+                if (!employee.collected) {
+                    ctx.fillStyle = '#f39c12';
+                    ctx.fillRect(employee.x, employee.y, 25, 25);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '18px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('😊', employee.x + 12, employee.y + 18);
+                }
+            });
+            
+            // Draw problems
+            game.problems.forEach(problem => {
+                if (!problem.solved) {
+                    const color = problem.severity === 'high' ? '#e74c3c' : 
+                                 problem.severity === 'medium' ? '#f39c12' : '#3498db';
+                    ctx.fillStyle = color;
+                    ctx.fillRect(problem.x, problem.y, 30, 30);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('❗', problem.x + 15, problem.y + 22);
+                }
+            });
+            
+            // Draw obstacles
+            game.obstacles.forEach(obstacle => {
+                ctx.fillStyle = '#8e44ad';
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                ctx.fillStyle = 'white';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(obstacle.symbol, obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2 + 5);
+            });
+            
+            // Draw power-ups
+            game.powerUps.forEach(powerUp => {
+                if (!powerUp.collected) {
+                    ctx.fillStyle = '#27ae60';
+                    ctx.fillRect(powerUp.x, powerUp.y, 25, 25);
+                    
+                    const symbols = {coffee: '☕', planner: '📅', smile: '😊'};
+                    ctx.fillStyle = 'white';
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(symbols[powerUp.type], powerUp.x + 12, powerUp.y + 18);
+                }
+            });
+            
+            // Draw particles
+            game.particles.forEach(particle => {
+                ctx.globalAlpha = particle.opacity;
+                ctx.fillStyle = 'white';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(particle.emoji, particle.x, particle.y);
+            });
+            ctx.globalAlpha = 1;
+            
+            // Office happiness bar
+            const barWidth = 200;
+            const barHeight = 20;
+            const barX = canvas.width - barWidth - 20;
+            const barY = 20;
+            
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(barX, barY, barWidth, barHeight);
+            
+            const happinessWidth = (barWidth * game.officeHappiness) / 100;
+            const happinessColor = game.officeHappiness > 70 ? '#27ae60' : 
+                                  game.officeHappiness > 40 ? '#f39c12' : '#e74c3c';
+            ctx.fillStyle = happinessColor;
+            ctx.fillRect(barX, barY, happinessWidth, barHeight);
+            
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(barX, barY, barWidth, barHeight);
+            
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Office Happiness', barX + barWidth/2, barY - 5);
+        }
+
+        function gameOver(victory) {
+            game.gameRunning = false;
+            document.getElementById('finalScore').textContent = game.score;
+            
+            if (victory) {
+                document.getElementById('gameOverTitle').textContent = '👑 OFFICE QUEEN! 👑';
+                document.getElementById('gameOverText').textContent = 'Katie has SLAYED the office management game!';
+                document.getElementById('gameOver').classList.add('victory');
+            } else {
+                document.getElementById('gameOverTitle').textContent = '💔 OFFICE CHAOS! 💔';
+                document.getElementById('gameOverText').textContent = 'The office happiness has dropped too low!';
+                document.getElementById('gameOver').classList.remove('victory');
+            }
+            
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            game = {
+                katie: {
+                    x: 50,
+                    y: 400,
+                    width: 35,
+                    height: 35,
+                    velocityX: 0,
+                    velocityY: 0,
+                    onGround: false,
+                    speed: 6,
+                    jumpPower: 16,
+                    facing: 'right'
+                },
+                platforms: [],
+                obstacles: [],
+                employees: [],
+                problems: [],
+                powerUps: [],
+                particles: [],
+                score: 0,
+                floor: 1,
+                officeHappiness: 100,
+                problemsSolved: 0,
+                employeesHelped: 0,
+                gameTime: 0,
+                gameRunning: true
+            };
+            
+            createLevel();
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        function goHome() {
+            window.location.href = '../index.html';
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        createLevel();
+        gameLoop();
+
+        console.log("👑 Katie's Office Adventure loaded! Time to SLAY the office management game! 💅");
+    </script>
+</body>
+</html>
