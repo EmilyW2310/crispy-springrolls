@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Theresa's Clari Chase</title>
+    <script src="../js/player-selector.js"></script>
     <style>
         body {
             margin: 0;
@@ -151,6 +152,35 @@
         </div>
 
         <button class="back-btn" onclick="goHome()">← Back to Game Menu</button>
+        
+        <!-- Player Display -->
+        <div id="playerDisplay" style="
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 1rem;
+            border-radius: 15px;
+            border: 2px solid #3498db;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 150px;
+        ">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;" id="playerEmoji">👤</div>
+            <div style="font-weight: bold; margin-bottom: 0.3rem;" id="playerName">No Player</div>
+            <div style="font-size: 0.8rem; opacity: 0.8;" id="playerTitle">Select Player</div>
+            <button id="changePlayerBtn" style="
+                background: #3498db;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                cursor: pointer;
+                margin-top: 0.5rem;
+            ">Change Player</button>
+        </div>
     </div>
 
     <div class="game-over" id="gameOver">
@@ -314,7 +344,6 @@
                 }
             }
             
-            // Keep Theresa within bounds
             if (theresa.x < 0.5) theresa.x = COLS - 0.5;
             if (theresa.x >= COLS - 0.5) theresa.x = 0.5;
             if (theresa.y < 0.5) theresa.y = 0.5;
@@ -556,23 +585,37 @@
                 ctx.fillText(message, canvas.width/2, 80);
                 
                 ctx.font = '20px Arial';
-                ctx.fillText('💃', canvas.width/2 + 140, 75);
+                ctx.fillText('📊', canvas.width/2 + 140, 75);
             }
         }
 
-        // Game over
+        // Game over with player integration
         function gameOver(victory) {
             game.gameRunning = false;
-            document.getElementById('finalScore').textContent = game.score;
             
-            if (victory) {
-                document.getElementById('gameOverTitle').textContent = '🎉 ALL REPORTS SUBMITTED! 🎉';
-                document.getElementById('gameOverText').textContent = 'Theresa successfully chased down all the RVPs!';
-                document.getElementById('gameOver').classList.add('victory');
+            // Report score for current player
+            const player = window.PlayerSystem ? window.PlayerSystem.getCurrentPlayer() : null;
+            if (player && window.reportPlayerScore) {
+                window.reportPlayerScore('theresas-clari', game.score);
+                
+                // Show personalized message
+                document.getElementById('finalScore').textContent = game.score.toLocaleString();
+                if (victory) {
+                    document.getElementById('gameOverTitle').textContent = '🎉 ALL REPORTS SUBMITTED! 🎉';
+                    document.getElementById('gameOverText').innerHTML = `
+                        Excellent work, ${player.name} ${player.emoji}!<br>
+                        Theresa successfully chased down all the RVPs!<br>
+                        Score: ${game.score.toLocaleString()}
+                    `;
+                } else {
+                    document.getElementById('gameOverTitle').textContent = '💔 DEADLINE MISSED! 💔';
+                    document.getElementById('gameOverText').innerHTML = `
+                        Don't worry ${player.name} ${player.emoji}, those RVPs are tricky!<br>
+                        Score: ${game.score.toLocaleString()}
+                    `;
+                }
             } else {
-                document.getElementById('gameOverTitle').textContent = '💔 DEADLINE MISSED! 💔';
-                document.getElementById('gameOverText').textContent = 'The RVPs escaped and the reports are still outstanding!';
-                document.getElementById('gameOver').classList.remove('victory');
+                document.getElementById('finalScore').textContent = game.score;
             }
             
             document.getElementById('gameOver').style.display = 'block';
@@ -610,7 +653,7 @@
         }
 
         function goHome() {
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         }
 
         function gameLoop() {
@@ -619,12 +662,43 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Start the game
         createMaze();
         createRVPs();
         gameLoop();
 
-        console.log("📊 Welcome to Theresa's Clari Chase! Help our Sales Ops hero collect those reports! 🏃‍♀️");
+        // Player selection integration
+        window.addEventListener('playerSelected', function(event) {
+            const player = event.detail;
+            updateGamePlayerDisplay(player);
+        });
+
+        function updateGamePlayerDisplay(player) {
+            document.getElementById('playerEmoji').textContent = player.emoji;
+            document.getElementById('playerName').textContent = player.name;
+            document.getElementById('playerTitle').textContent = player.title;
+        }
+
+        document.getElementById('changePlayerBtn').addEventListener('click', function() {
+            if (window.PlayerSystem) {
+                window.PlayerSystem.changePlayer();
+            }
+        });
+
+        // Initialize player system when game loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.PlayerSystem) {
+                    const player = window.PlayerSystem.getCurrentPlayer();
+                    if (player) {
+                        updateGamePlayerDisplay(player);
+                    } else {
+                        window.PlayerSystem.showSelector();
+                    }
+                }
+            }, 1000);
+        });
+
+        console.log("📊 Welcome to Theresa's Clari Chase with player tracking! 🏃‍♀️");
     </script>
 </body>
 </html>
