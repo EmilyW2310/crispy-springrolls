@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Oscar's Gaming Universe</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .leaderboard-container {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .leaderboard-section {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: rgba(52, 152, 219, 0.3);
+            color: white;
+            border: 2px solid #3498db;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .tab-btn:hover,
+        .tab-btn.active {
+            background: #3498db;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .leaderboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .leaderboard-card {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-card:hover {
+            transform: translateY(-5px);
+            border-color: #f39c12;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .board-title {
+            font-size: 1.5rem;
+            color: #f39c12;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .score-list {
+            list-style: none;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .score-item:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateX(5px);
+        }
+
+        .score-item.first { border-left-color: #f1c40f; }
+        .score-item.second { border-left-color: #95a5a6; }
+        .score-item.third { border-left-color: #cd7f32; }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .player-rank {
+            font-weight: bold;
+            font-size: 1.2rem;
+            min-width: 2rem;
+            text-align: center;
+        }
+
+        .player-emoji {
+            font-size: 1.5rem;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+
+        .player-score {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #f39c12;
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .achievement-card {
+            background: linear-gradient(145deg, #8e44ad, #9b59b6);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .achievement-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(142, 68, 173, 0.3);
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .stats-overview {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🥢</span>
+                <span class="logo-text">Oscar's Gaming Universe</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../games/index.html" class="nav-link">Games</a>
+                </li>
+                <li class="nav-item active">
+                    <a href="index.html" class="nav-link">Leaderboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../about/index.html" class="nav-link">Team</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="leaderboard-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">🏆 LEADERBOARD 🏆</h1>
+            <p class="page-subtitle">Hall of Fame for Oscar's Gaming Legends</p>
+        </header>
+
+        <section class="leaderboard-section">
+            <!-- Overall Stats -->
+            <div class="stats-overview">
+                <h2 style="margin-bottom: 1rem; font-size: 2rem;">🎮 Gaming Universe Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalPlays">3,494</div>
+                        <div class="stat-label">Total Games Played</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalPlayers">13</div>
+                        <div class="stat-label">Active Players</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalScore">87,432</div>
+                        <div class="stat-label">Combined Score</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">4</div>
+                        <div class="stat-label">Games Available</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Selection Tabs -->
+            <div class="game-tabs">
+                <button class="tab-btn active" data-game="overall">🌟 Overall Champions</button>
+                <button class="tab-btn" data-game="oscar-emily">🛡️ Oscar & Emily</button>
+                <button class="tab-btn" data-game="super-oscar">👑 Super Oscar</button>
+                <button class="tab-btn" data-game="marley">👩‍💼 Marley's Management</button>
+                <button class="tab-btn" data-game="theresa">🏃‍♀️ Theresa's Chase</button>
+            </div>
+
+            <!-- Leaderboards -->
+            <div class="leaderboard-grid">
+                <!-- High Scores -->
+                <div class="leaderboard-card">
+                    <h3 class="board-title">
+                        <span>🏆</span>
+                        <span id="currentGameTitle">Overall High Scores</span>
+                    </h3>
+                    <ul class="score-list" id="highScoreList">
+                        <li class="score-item first">
+                            <div class="player-info">
+                                <span class="player-rank">1</span>
+                                <span class="player-emoji">👑</span>
+                                <span class="player-name">Oscar</span>
+                            </div>
+                            <span class="player-score">15,420</span>
+                        </li>
+                        <li class="score-item second">
+                            <div class="player-info">
+                                <span class="player-rank">2</span>
+                                <span class="player-emoji">🔥</span>
+                                <span class="player-name">Emily</span>
+                            </div>
+                            <span class="player-score">14,850</span>
+                        </li>
+                        <li class="score-item third">
+                            <div class="player-info">
+                                <span class="player-rank">3</span>
+                                <span class="player-emoji">🌟</span>
+                                <span class="player-name">Marley</span>
+                            </div>
+                            <span class="player-score">13,290</span>
+                        </li>
+                        <li class="score-item">
+                            <div class="player-info">
+                                <span class="player-rank">4</span>
+                                <span class="player-emoji">💃</span>
+                                <span class="player-name">Theresa</span>
+                            </div>
+                            <span class="player-score">12,100</span>
+                        </li>
+                        <li class="score-item">
+                            <div class="player-info">
+                                <span class="player-rank">5</span>
+                                <span class="player-emoji">⭐</span>
+                                <span class="player-name">Nicholas</span>
+                            </div>
+                            <span class="player-score">11,750</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="leaderboard-card">
+                    <h3 class="board-title">
+                        <span>⚡</span>
+                        <span>Recent Activity</span>
+                    </h3>
+                    <ul class="score-list">
+                        <li class="score-item">
+                            <div class="player-info">
+                                <span class="player-emoji">👑</span>
+                                <span class="player-name">Oscar</span>
+                                <span style="font-size: 0.8rem; opacity: 0.7;">2 min ago</span>
+                            </div>
+                            <span class="player-score">8,940</span>
+                        </li>
+                        <li class="score-item">
+                            <div class="player-info">
+                                <span class="player-emoji">💃</span>
+                                <span class="player-name">Theresa</span>
+                                <span style="font-size: 0.8rem; opacity: 0.7;">5 min ago</span>
+                            </div>
+                            <span class="player-score">7,230</span>
+                        </li>
+                        <li class="score-item">
+                            <div class="player-info">
+                                <span class="player-emoji">🧠</span>
+                                <span class="player-name">Matthias</span>
+                                <span style="font-size: 0.8rem; opacity: 0.7;">12 min ago</span>
+                            </div>
+                            <span class="player-score">6,820</span>
+                        </li>
+                        <li class="score-item">
+                            <div class="player-info">
+                                <span class="player-emoji">🦸‍♂️</span>
+                                <span class="player-name">Rich</span>
+                                <span style="font-size: 0.8rem; opacity: 0.7;">18 min ago</span>
+                            </div>
+                            <span class="player-score">9,150</span>
+                        </li>
+                        <li class="score-item">
+                            <div class="player-info">
+                                <span class="player-emoji">👸</span>
+                                <span class="player-name">Queen Rania</span>
+                                <span style="font-size: 0.8rem; opacity: 0.7;">25 min ago</span>
+                            </div>
+                            <span class="player-score">10,300</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Achievements Section -->
+            <div style="margin-top: 3rem;">
+                <h2 style="text-align: center; font-size: 2.5rem; color: #f39c12; margin-bottom: 2rem;">🏅 Achievements Unlocked</h2>
+                
+                <div class="achievement-grid">
+                    <div class="achievement-card">
+                        <div class="achievement-icon">👑</div>
+                        <div class="achievement-title">Sass Master</div>
+                        <div class="achievement-description">Oscar: Complete 50 SaaS collections</div>
+                    </div>
+                    
+                    <div class="achievement-card">
+                        <div class="achievement-icon">🔥</div>
+                        <div class="achievement-title">Strategic Genius</div>
+                        <div class="achievement-description">Emily: Land 100 strategic strikes</div>
+                    </div>
+                    
+                    <div class="achievement-card">
+                        <div class="achievement-icon">🌟</div>
+                        <div class="achievement-title">Leadership Excellence</div>
+                        <div class="achievement-description">Marley: Keep team morale above 90% for 5 minutes</div>
+                    </div>
+                    
+                    <div class="achievement-card">
+                        <div class="achievement-icon">📊</div>
+                        <div class="achievement-title">Report Hunter</div>
+                        <div class="achievement-description">Theresa: Collect 200 Clari reports</div>
+                    </div>
+                    
+                    <div class="achievement-card">
+                        <div class="achievement-icon">⚡</div>
+                        <div class="achievement-title">Speed Demon</div>
+                        <div class="achievement-description">Complete any game in under 2 minutes</div>
+                    </div>
+                    
+                    <div class="achievement-card">
+                        <div class="achievement-icon">🏅</div>
+                        <div class="achievement-title">Team Player</div>
+                        <div class="achievement-description">Play all 4 games in one session</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Champions -->
+            <div style="margin-top: 3rem; text-align: center;">
+                <h2 style="font-size: 2rem; color: #f39c12; margin-bottom: 2rem;">👑 This Week's Champions</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-box" style="background: linear-gradient(45deg, #e74c3c, #f39c12); padding: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
+                        <div class="stat-number">Oscar & Emily</div>
+                        <div class="stat-label">Co-op Champions</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(45deg, #3498db, #9b59b6); padding: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">👑</div>
+                        <div class="stat-number">Oscar</div>
+                        <div class="stat-label">Arcade Master</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(45deg, #f39c12, #e67e22); padding: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">👩‍💼</div>
+                        <div class="stat-number">Marley</div>
+                        <div class="stat-label">Management Pro</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(45deg, #8e44ad, #9b59b6); padding: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">💃</div>
+                        <div class="stat-number">Theresa</div>
+                        <div class="stat-label">Chase Champion</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="../js/navigation.js"></script>
+    <script>
+        // Game data structure
+        const gameData = {
+            'oscar-emily': {
+                name: 'Oscar & Emily: Pre-Sales Defenders',
+                icon: '🛡️',
+                scores: [
+                    { player: 'Oscar', emoji: '👑', score: 15420 },
+                    { player: 'Emily', emoji: '🔥', score: 14850 },
+                    { player: 'Marley', emoji: '🌟', score: 13290 },
+                    { player: 'Theresa', emoji: '💃', score: 12100 },
+                    { player: 'Nicholas', emoji: '⭐', score: 11750 }
+                ]
+            },
+            'super-oscar': {
+                name: 'Super Oscar: Solo Sass Adventure',
+                icon: '👑',
+                scores: [
+                    { player: 'Oscar', emoji: '👑', score: 8750 },
+                    { player: 'Rich', emoji: '🦸‍♂️', score: 7230 },
+                    { player: 'Ross', emoji: '⚽', score: 6890 },
+                    { player: 'Ali', emoji: '☕', score: 6420 },
+                    { player: 'Clement', emoji: '😎', score: 5980 }
+                ]
+            },
+            'marley': {
+                name: "Marley's Management Mayhem",
+                icon: '👩‍💼',
+                scores: [
+                    { player: 'Marley', emoji: '🌟', score: 12890 },
+                    { player: 'Rob', emoji: '👨‍💼', score: 10340 },
+                    { player: 'Emily', emoji: '🔥', score: 9870 },
+                    { player: 'Nicholas', emoji: '⭐', score: 8920 },
+                    { player: 'Matthias', emoji: '🧠', score: 8450 }
+                ]
+            },
+            'theresa': {
+                name: "Theresa's Clari Chase",
+                icon: '🏃‍♀️',
+                scores: [
+                    { player: 'Theresa', emoji: '💃', score: 9340 },
+                    { player: 'Queen Rania', emoji: '👸', score: 8760 },
+                    { player: 'Arun', emoji: '🥃', score: 7890 },
+                    { player: 'Arsh', emoji: '💪', score: 7450 },
+                    { player: 'Adrien', emoji: '🔄', score: 6980 }
+                ]
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const gameKey = this.getAttribute('data-game');
+                    
+                    // Update active tab
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update leaderboard
+                    updateLeaderboard(gameKey);
+                });
+            });
+
+            // Load saved scores from localStorage
+            loadScores();
+        });
+
+        function updateLeaderboard(gameKey) {
+            const titleElement = document.getElementById('currentGameTitle');
+            const listElement = document.getElementById('highScoreList');
+            
+            if (gameKey === 'overall') {
+                titleElement.textContent = 'Overall High Scores';
+                // Show combined scores across all games
+                const allScores = [];
+                Object.values(gameData).forEach(game => {
+                    game.scores.forEach(score => {
+                        const existing = allScores.find(s => s.player === score.player);
+                        if (existing) {
+                            existing.score += score.score;
+                        } else {
+                            allScores.push({...score});
+                        }
+                    });
+                });
+                
+                allScores.sort((a, b) => b.score - a.score);
+                displayScores(allScores.slice(0, 5));
+            } else {
+                const game = gameData[gameKey];
+                titleElement.textContent = game.name;
+                displayScores(game.scores);
+            }
+        }
+
+        function displayScores(scores) {
+            const listElement = document.getElementById('highScoreList');
+            listElement.innerHTML = '';
+            
+            scores.forEach((score, index) => {
+                const rankClass = index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : '';
+                
+                listElement.innerHTML += `
+                    <li class="score-item ${rankClass}">
+                        <div class="player-info">
+                            <span class="player-rank">${index + 1}</span>
+                            <span class="player-emoji">${score.emoji}</span>
+                            <span class="player-name">${score.player}</span>
+                        </div>
+                        <span class="player-score">${score.score.toLocaleString()}</span>
+                    </li>
+                `;
+            });
+        }
+
+        function loadScores() {
+            // Load any saved scores from localStorage
+            const savedScores = localStorage.getItem('gameHighScores');
+            if (savedScores) {
+                // Merge with default data
+                const saved = JSON.parse(savedScores);
+                Object.keys(saved).forEach(gameKey => {
+                    if (gameData[gameKey]) {
+                        // Update with saved high scores
+                        gameData[gameKey].scores = saved[gameKey].scores || gameData[gameKey].scores;
+                    }
+                });
+            }
+            
+            // Display overall scores by default
+            updateLeaderboard('overall');
+        }
+
+        console.log("🏆 Welcome to the Hall of Fame! May the best pre-sales legend win! 🎮");
+    </script>
+</body>
+</html>
