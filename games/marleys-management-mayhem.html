@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marley's Management Mayhem</title>
+    <script src="../js/player-selector.js"></script>
     <style>
         body {
             margin: 0;
@@ -151,6 +152,35 @@
         </div>
 
         <button class="back-btn" onclick="goHome()">← Back to Game Menu</button>
+        
+        <!-- Player Display -->
+        <div id="playerDisplay" style="
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 1rem;
+            border-radius: 15px;
+            border: 2px solid #ff6b6b;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 150px;
+        ">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;" id="playerEmoji">👤</div>
+            <div style="font-weight: bold; margin-bottom: 0.3rem;" id="playerName">No Player</div>
+            <div style="font-size: 0.8rem; opacity: 0.8;" id="playerTitle">Select Player</div>
+            <button id="changePlayerBtn" style="
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                cursor: pointer;
+                margin-top: 0.5rem;
+            ">Change Player</button>
+        </div>
     </div>
 
     <div class="game-over" id="gameOver">
@@ -210,7 +240,7 @@
             fireLeadershipProjectile();
         });
 
-        // Team member data
+        // Team member data with Lucia
         const teamData = [
             { name: 'Oscar', emoji: '👑', color: '#f39c12', specialty: 'Sass Solutions' },
             { name: 'Emily', emoji: '🔥', color: '#e91e63', specialty: 'Strategy' },
@@ -338,21 +368,6 @@
             if (!game.gameRunning) return;
 
             game.gameTime++;
-            
-            // Handle popup reminders
-            game.popupTimer++;
-            if (game.popupTimer >= 600) {
-                game.showPopup = true;
-                game.popupDuration = 120;
-                game.popupTimer = 0;
-            }
-            
-            if (game.showPopup) {
-                game.popupDuration--;
-                if (game.popupDuration <= 0) {
-                    game.showPopup = false;
-                }
-            }
 
             // Move Marley
             if (keys['ArrowUp'] && game.marley.y > 0) game.marley.y -= game.marley.speed;
@@ -437,7 +452,7 @@
                 }
             });
 
-            // Update team members stress and calculate morale
+            // Update team stress and morale
             let totalStress = 0;
             game.teamMembers.forEach(member => {
                 if (game.gameTime % 60 === 0 && member.stress > 0) {
@@ -552,7 +567,7 @@
                 }
             });
 
-            // Draw crosshair for aiming
+            // Draw crosshair
             ctx.strokeStyle = '#ffd93d';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -577,19 +592,33 @@
             });
         }
 
-        // Game over
+        // Game over with player integration
         function gameOver(victory) {
             game.gameRunning = false;
-            document.getElementById('finalScore').textContent = game.score;
             
-            if (victory) {
-                document.getElementById('gameOverTitle').textContent = '🎉 MANAGEMENT MASTER! 🎉';
-                document.getElementById('gameOverText').textContent = 'You\'ve successfully led the team through all challenges!';
-                document.getElementById('gameOver').classList.add('victory');
+            // Report score for current player
+            const player = window.PlayerSystem ? window.PlayerSystem.getCurrentPlayer() : null;
+            if (player && window.reportPlayerScore) {
+                window.reportPlayerScore('marleys-management', game.score);
+                
+                // Show personalized message
+                document.getElementById('finalScore').textContent = game.score.toLocaleString();
+                if (victory) {
+                    document.getElementById('gameOverTitle').textContent = '🎉 MANAGEMENT MASTER! 🎉';
+                    document.getElementById('gameOverText').innerHTML = `
+                        Incredible leadership, ${player.name} ${player.emoji}!<br>
+                        You've successfully led the team through all challenges!<br>
+                        Score: ${game.score.toLocaleString()}
+                    `;
+                } else {
+                    document.getElementById('gameOverTitle').textContent = '💔 TEAM BURNOUT! 💔';
+                    document.getElementById('gameOverText').innerHTML = `
+                        Don't worry ${player.name} ${player.emoji}, even the best leaders face tough days!<br>
+                        Score: ${game.score.toLocaleString()}
+                    `;
+                }
             } else {
-                document.getElementById('gameOverTitle').textContent = '💔 TEAM BURNOUT! 💔';
-                document.getElementById('gameOverText').textContent = 'The team morale has hit rock bottom!';
-                document.getElementById('gameOver').classList.remove('victory');
+                document.getElementById('finalScore').textContent = game.score;
             }
             
             document.getElementById('gameOver').style.display = 'block';
@@ -628,7 +657,7 @@
         }
 
         function goHome() {
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         }
 
         function gameLoop() {
@@ -640,7 +669,39 @@
         initTeam();
         gameLoop();
 
-        console.log("🌟 Welcome to Marley's Management Mayhem! The ULTIMATE dream team is assembled: Oscar👑, Emily🔥, Matthias🧠, Rich🦸‍♂️, Ross⚽, Clement😎, Queen Rania👸, Ali☕, Nicholas⭐, Mr Manager Rob👨‍💼, Adrien🔄, Arun🥃, Arsh💪, Lucia💃🏻! Now with 14 incredible team members! 🚀");
+        // Player selection integration
+        window.addEventListener('playerSelected', function(event) {
+            const player = event.detail;
+            updateGamePlayerDisplay(player);
+        });
+
+        function updateGamePlayerDisplay(player) {
+            document.getElementById('playerEmoji').textContent = player.emoji;
+            document.getElementById('playerName').textContent = player.name;
+            document.getElementById('playerTitle').textContent = player.title;
+        }
+
+        document.getElementById('changePlayerBtn').addEventListener('click', function() {
+            if (window.PlayerSystem) {
+                window.PlayerSystem.changePlayer();
+            }
+        });
+
+        // Initialize player system when game loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.PlayerSystem) {
+                    const player = window.PlayerSystem.getCurrentPlayer();
+                    if (player) {
+                        updateGamePlayerDisplay(player);
+                    } else {
+                        window.PlayerSystem.showSelector();
+                    }
+                }
+            }, 1000);
+        });
+
+        console.log("🌟 Welcome to Marley's Management Mayhem with player tracking! 💪");
     </script>
 </body>
 </html>
