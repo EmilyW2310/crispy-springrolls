@@ -146,7 +146,7 @@
         
         <div class="controls">
             <strong>MARLEY:</strong> Arrow Keys to move, SPACE for Motivational Boost, CLICK to shoot Leadership Projectiles! 🎯<br>
-            Support your MEGA team: Oscar👑, Emily🔥, Matthias🧠, Rich🦸‍♂️, Ross⚽, Clement😎, Queen Rania👸, Ali☕, Nicholas⭐, Mr Manager Rob👨‍💼, Adrien🔄, Arun🥃, Arsh💪<br>
+            Support your EPIC team: Oscar👑, Emily🔥, Matthias🧠, Rich🦸‍♂️, Ross⚽, Clement😎, Queen Rania👸, Ali☕, Nicholas⭐, Mr Manager Rob👨‍💼, Adrien🔄, Arun🥃, Arsh💪, Lucia💃🏻<br>
             Keep everyone motivated AND take down crises with precise leadership firepower!
         </div>
 
@@ -187,7 +187,10 @@
             crisesHandled: 0,
             gameRunning: true,
             spawnTimer: 0,
-            gameTime: 0
+            gameTime: 0,
+            popupTimer: 0,
+            showPopup: false,
+            popupDuration: 0
         };
 
         // Input handling
@@ -210,18 +213,19 @@
         // Team member data
         const teamData = [
             { name: 'Oscar', emoji: '👑', color: '#f39c12', specialty: 'Sass Solutions' },
-            { name: 'Emily', emoji: '🔥', color: '#e74c3c', specialty: 'Strategy' },
+            { name: 'Emily', emoji: '🔥', color: '#e91e63', specialty: 'Strategy' },
             { name: 'Matthias', emoji: '🧠', color: '#3498db', specialty: 'German Logic' },
             { name: 'Rich', emoji: '🦸‍♂️', color: '#9b59b6', specialty: 'Cool Defense' },
             { name: 'Ross', emoji: '⚽', color: '#27ae60', specialty: 'Style & Solutions' },
-            { name: 'Clement', emoji: '😎', color: '#34495e', specialty: 'Smooth Operations' },
+            { name: 'Clement', emoji: '😎', color: '#5dade2', specialty: 'Smooth Operations' },
             { name: 'Rania', emoji: '👸', color: '#8e44ad', specialty: 'Royal Excellence' },
             { name: 'Ali', emoji: '☕', color: '#d35400', specialty: 'Technical Wizardry' },
             { name: 'Nicholas', emoji: '⭐', color: '#c0392b', specialty: 'Go-Getter Energy' },
             { name: 'Rob', emoji: '👨‍💼', color: '#2ecc71', specialty: 'Lovable Management' },
             { name: 'Adrien', emoji: '🔄', color: '#16a085', specialty: 'FullCircl Mastery' },
             { name: 'Arun', emoji: '🥃', color: '#f39c12', specialty: 'Whisky Wisdom' },
-            { name: 'Arsh', emoji: '💪', color: '#e67e22', specialty: 'Fitness Power' }
+            { name: 'Arsh', emoji: '💪', color: '#e67e22', specialty: 'Fitness Power' },
+            { name: 'Lucia', emoji: '💃🏻', color: '#ff6b9d', specialty: 'Spanish Creativity' }
         ];
 
         // Initialize team members
@@ -256,42 +260,12 @@
             
             let crisis = crisisTypes[Math.floor(Math.random() * crisisTypes.length)];
             
-            // Spawn from different directions to hit all team members
-            const spawnSide = Math.random();
-            let startX, startY, targetX, targetY;
-            
-            if (spawnSide < 0.5) {
-                // Spawn from right side (original)
-                startX = canvas.width;
-                startY = Math.random() * (canvas.height - 100) + 50;
-                targetX = -crisis.speed;
-                targetY = 0;
-            } else {
-                // Spawn from top/bottom targeting specific team members
-                const randomMember = game.teamMembers[Math.floor(Math.random() * game.teamMembers.length)];
-                if (Math.random() < 0.5) {
-                    // From top
-                    startX = randomMember.x + Math.random() * 100 - 50;
-                    startY = -35;
-                    targetX = 0;
-                    targetY = crisis.speed;
-                } else {
-                    // From bottom
-                    startX = randomMember.x + Math.random() * 100 - 50;
-                    startY = canvas.height;
-                    targetX = 0;
-                    targetY = -crisis.speed;
-                }
-            }
-            
             game.crises.push({
-                x: startX,
-                y: startY,
+                x: canvas.width,
+                y: Math.random() * (canvas.height - 100) + 50,
                 width: 35,
                 height: 35,
-                speedX: targetX,
-                speedY: targetY,
-                baseSpeed: crisis.speed + (game.level * 0.2),
+                speed: crisis.speed + (game.level * 0.3),
                 stress: crisis.stress,
                 symbol: crisis.symbol,
                 points: crisis.points,
@@ -309,7 +283,6 @@
             
             game.marley.lastShot = now;
             
-            // Calculate angle to mouse position
             const dx = mouseX - (game.marley.x + game.marley.width/2);
             const dy = mouseY - (game.marley.y + game.marley.height/2);
             const distance = Math.sqrt(dx * dx + dy * dy);
@@ -336,7 +309,6 @@
             
             game.marley.lastBoost = now;
             
-            // Create boost effect around Marley
             game.motivationBoosts.push({
                 x: game.marley.x,
                 y: game.marley.y,
@@ -355,7 +327,6 @@
                    rect1.y + rect1.height > rect2.y;
         }
 
-        // Check if point is in circle
         function pointInCircle(px, py, cx, cy, radius) {
             const dx = px - cx;
             const dy = py - cy;
@@ -367,6 +338,21 @@
             if (!game.gameRunning) return;
 
             game.gameTime++;
+            
+            // Handle popup reminders
+            game.popupTimer++;
+            if (game.popupTimer >= 600) {
+                game.showPopup = true;
+                game.popupDuration = 120;
+                game.popupTimer = 0;
+            }
+            
+            if (game.showPopup) {
+                game.popupDuration--;
+                if (game.popupDuration <= 0) {
+                    game.showPopup = false;
+                }
+            }
 
             // Move Marley
             if (keys['ArrowUp'] && game.marley.y > 0) game.marley.y -= game.marley.speed;
@@ -386,14 +372,12 @@
                 projectile.x += projectile.speedX;
                 projectile.y += projectile.speedY;
                 
-                // Remove if off screen
                 if (projectile.x < 0 || projectile.x > canvas.width || 
                     projectile.y < 0 || projectile.y > canvas.height) {
                     game.projectiles.splice(index, 1);
                     return;
                 }
 
-                // Check collision with crises
                 game.crises.forEach((crisis, crisisIndex) => {
                     if (checkCollision(projectile, crisis)) {
                         crisis.health -= projectile.damage;
@@ -420,7 +404,6 @@
                     return;
                 }
 
-                // Check if boost helps team members
                 game.teamMembers.forEach(member => {
                     if (pointInCircle(member.x + member.width/2, member.y + member.height/2, 
                                      boost.x + 20, boost.y + 20, boost.radius)) {
@@ -431,10 +414,8 @@
 
             // Update crises
             game.crises.forEach((crisis, index) => {
-                crisis.x += crisis.speedX * crisis.baseSpeed;
-                crisis.y += crisis.speedY * crisis.baseSpeed;
+                crisis.x -= crisis.speed;
                 
-                // Check collision with team members
                 game.teamMembers.forEach(member => {
                     if (checkCollision(crisis, member)) {
                         member.stress += crisis.stress;
@@ -444,7 +425,6 @@
                     }
                 });
 
-                // Check if Marley intercepts the crisis
                 if (checkCollision(crisis, game.marley)) {
                     game.score += crisis.points;
                     game.crisesHandled++;
@@ -452,9 +432,7 @@
                     return;
                 }
 
-                // Remove if off screen
-                if (crisis.x + crisis.width < -50 || crisis.x > canvas.width + 50 || 
-                    crisis.y + crisis.height < -50 || crisis.y > canvas.height + 50) {
+                if (crisis.x + crisis.width < 0) {
                     game.crises.splice(index, 1);
                 }
             });
@@ -462,34 +440,28 @@
             // Update team members stress and calculate morale
             let totalStress = 0;
             game.teamMembers.forEach(member => {
-                // Gradually reduce stress over time
                 if (game.gameTime % 60 === 0 && member.stress > 0) {
                     member.stress = Math.max(0, member.stress - 2);
                 }
                 totalStress += member.stress;
             });
 
-            // Calculate team morale (inverse of average stress)
             const averageStress = totalStress / game.teamMembers.length;
             game.teamMorale = Math.max(0, 100 - averageStress);
 
-            // Level progression
             if (game.crisesHandled >= game.level * 5) {
                 game.level++;
-                game.teamMorale = Math.min(100, game.teamMorale + 20); // Level up bonus
+                game.teamMorale = Math.min(100, game.teamMorale + 20);
             }
 
-            // Check game over
             if (game.teamMorale <= 0) {
                 gameOver(false);
             }
 
-            // Check victory condition
             if (game.level >= 10) {
                 gameOver(true);
             }
 
-            // Update UI
             document.getElementById('score').textContent = game.score;
             document.getElementById('level').textContent = game.level;
             document.getElementById('morale').textContent = Math.floor(game.teamMorale);
@@ -498,7 +470,6 @@
 
         // Render game
         function render() {
-            // Clear canvas
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
             gradient.addColorStop(0, '#34495e');
             gradient.addColorStop(1, '#2c3e50');
@@ -507,15 +478,13 @@
 
             if (!game.gameRunning) return;
 
-            // Draw Marley (the boss!)
+            // Draw Marley
             ctx.fillStyle = '#ff6b6b';
             ctx.fillRect(game.marley.x, game.marley.y, game.marley.width, game.marley.height);
             
-            // Boss badge
             ctx.fillStyle = '#ffd93d';
             ctx.fillRect(game.marley.x + 5, game.marley.y - 8, 30, 8);
             
-            // Label
             ctx.fillStyle = 'white';
             ctx.font = '10px Arial';
             ctx.textAlign = 'center';
@@ -523,7 +492,6 @@
 
             // Draw team members
             game.teamMembers.forEach(member => {
-                // Flash red when stressed
                 if (game.gameTime - member.lastStressed < 30) {
                     ctx.fillStyle = '#ffffff';
                 } else {
@@ -531,17 +499,14 @@
                 }
                 ctx.fillRect(member.x, member.y, member.width, member.height);
                 
-                // Draw emoji
                 ctx.fillStyle = 'white';
                 ctx.font = '16px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText(member.emoji, member.x + member.width/2, member.y + member.height/2 + 5);
                 
-                // Name label
                 ctx.font = '8px Arial';
                 ctx.fillText(member.name, member.x + member.width/2, member.y - 5);
                 
-                // Stress bar
                 if (member.stress > 0) {
                     const stressWidth = 32 * (member.stress / member.maxStress);
                     ctx.fillStyle = '#e74c3c';
@@ -553,7 +518,6 @@
 
             // Draw crises
             game.crises.forEach(crisis => {
-                // Flash white when hit
                 if (game.gameTime - crisis.lastDamage < 5) {
                     ctx.fillStyle = '#ffffff';
                 } else {
@@ -566,7 +530,6 @@
                 ctx.textAlign = 'center';
                 ctx.fillText(crisis.symbol, crisis.x + crisis.width/2, crisis.y + crisis.height/2 + 6);
                 
-                // Health bar for multi-hit crises
                 if (crisis.maxHealth > 1) {
                     const healthWidth = 35 * (crisis.health / crisis.maxHealth);
                     ctx.fillStyle = '#e74c3c';
@@ -581,7 +544,6 @@
                 ctx.fillStyle = projectile.color;
                 ctx.fillRect(projectile.x, projectile.y, projectile.width, projectile.height);
                 
-                // Add glow effect for leadership projectiles
                 if (projectile.type === 'leadership') {
                     ctx.shadowColor = projectile.color;
                     ctx.shadowBlur = 8;
@@ -608,7 +570,6 @@
                 ctx.arc(boost.x + 20, boost.y + 20, boost.radius, 0, Math.PI * 2);
                 ctx.stroke();
                 
-                // Sparkles
                 ctx.fillStyle = '#ffd93d';
                 ctx.font = '12px Arial';
                 ctx.textAlign = 'center';
@@ -656,30 +617,30 @@
                 crisesHandled: 0,
                 gameRunning: true,
                 spawnTimer: 0,
-                gameTime: 0
+                gameTime: 0,
+                popupTimer: 0,
+                showPopup: false,
+                popupDuration: 0
             };
             
             initTeam();
             document.getElementById('gameOver').style.display = 'none';
         }
 
-        // Go back to main menu
         function goHome() {
             window.location.href = 'index.html';
         }
 
-        // Game loop
         function gameLoop() {
             update();
             render();
             requestAnimationFrame(gameLoop);
         }
 
-        // Start the game
         initTeam();
         gameLoop();
 
-        console.log("🌟 Welcome to Marley's Management Mayhem! The ULTIMATE dream team is assembled: Oscar👑, Emily🔥, Matthias🧠, Rich🦸‍♂️, Ross⚽, Clement😎, Queen Rania👸, Ali☕, Nicholas⭐, Mr Manager Rob👨‍💼, Adrien🔄, Arun🥃, Arsh💪! This is LEGENDARY! 🚀");
+        console.log("🌟 Welcome to Marley's Management Mayhem! The ULTIMATE dream team is assembled: Oscar👑, Emily🔥, Matthias🧠, Rich🦸‍♂️, Ross⚽, Clement😎, Queen Rania👸, Ali☕, Nicholas⭐, Mr Manager Rob👨‍💼, Adrien🔄, Arun🥃, Arsh💪, Lucia💃🏻! Now with 14 incredible team members! 🚀");
     </script>
 </body>
 </html>
