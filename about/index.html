@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet the Team - Oscar's Gaming Universe</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .team-container {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .team-member-card {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-member-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--member-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .team-member-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .team-member-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--member-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .member-avatar {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .member-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--member-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .member-title {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .member-description {
+            color: #ecf0f1;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .member-specialties {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .specialty-tag {
+            background: var(--member-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Member-specific colors */
+        .oscar { --member-color: #f39c12; }
+        .emily { --member-color: #e91e63; }
+        .marley { --member-color: #ff6b6b; }
+        .matthias { --member-color: #3498db; }
+        .rich { --member-color: #9b59b6; }
+        .ross { --member-color: #27ae60; }
+        .clement { --member-color: #5dade2; }
+        .rania { --member-color: #8e44ad; }
+        .ali { --member-color: #d35400; }
+        .nicholas { --member-color: #c0392b; }
+        .rob { --member-color: #2ecc71; }
+        .adrien { --member-color: #16a085; }
+        .arun { --member-color: #f39c12; }
+        .arsh { --member-color: #e67e22; }
+        .lucia { --member-color: #ff6b9d; }
+        .theresa { --member-color: #3498db; }
+
+        .leadership-section {
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            padding: 3rem 2rem;
+            margin: 3rem 0;
+            border-radius: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .supporting-section {
+            background: linear-gradient(45deg, #3498db, #8e44ad);
+            padding: 3rem 2rem;
+            margin: 3rem 0;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .presales-section {
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            padding: 3rem 2rem;
+            margin: 3rem 0;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🥢</span>
+                <span class="logo-text">Oscar's Gaming Universe</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../games/index.html" class="nav-link">Games</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../leaderboard/index.html" class="nav-link">Leaderboard</a>
+                </li>
+                <li class="nav-item active">
+                    <a href="index.html" class="nav-link">Team</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="team-container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">👥 Meet the Gaming Legends 👥</h1>
+            <p class="page-subtitle">The incredible team behind Oscar's Gaming Universe</p>
+        </header>
+
+        <section class="content-section">
+            <!-- Leadership Section -->
+            <div class="leadership-section">
+                <h2 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem;">🌟 Pre-Sales Leadership 🌟</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.8;">Leading the pre-sales dream team to victory</p>
+                
+                <div style="display: flex; justify-content: center;">
+                    <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; max-width: 300px;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🌟</div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Marley</h3>
+                        <p style="opacity: 0.8;">Pre-Sales Master & Team Leader</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supporting Heroes Section -->
+            <div class="supporting-section">
+                <h2 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem;">🤝 Supporting Heroes 🤝</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">Amazing colleagues from other teams who make pre-sales success possible!</p>
+                
+                <div style="display: flex; justify-content: center;">
+                    <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; max-width: 300px;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Theresa</h3>
+                        <p style="opacity: 0.8;">Sales Operations Excellence</p>
+                        <p style="font-size: 0.9rem; margin-top: 1rem; opacity: 0.7;">Keeps everyone organized and on track!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pre-Sales Team Section -->
+            <div class="presales-section">
+                <h2 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem;">👑 The Pre-Sales Dream Team 👑</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">The legendary squad that turns prospects into customers with sass, strategy, and style!</p>
+            </div>
+            
+            <div class="team-grid">
+                <!-- Oscar -->
+                <div class="team-member-card oscar">
+                    <div class="member-avatar">👑</div>
+                    <h3 class="member-name">Oscar</h3>
+                    <p class="member-title">The Sassiest Solution Architect</p>
+                    <p class="member-description">
+                        Oscar brings legendary diva energy and razor-sharp wit to every architectural challenge. 
+                        His SaaS solutions are delivered with such spectacular sass that legacy systems practically curtsy in his presence!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Sass Solutions</span>
+                        <span class="specialty-tag">Architecture</span>
+                        <span class="specialty-tag">Diva Energy</span>
+                    </div>
+                </div>
+
+                <!-- Emily -->
+                <div class="team-member-card emily">
+                    <div class="member-avatar">🔥</div>
+                    <h3 class="member-name">Emily</h3>
+                    <p class="member-title">The Strategic Powerhouse</p>
+                    <p class="member-description">
+                        Emily combines strategic prowess with a no-nonsense attitude that cuts through any challenge. 
+                        Her precision strikes and tactical brilliance make her the ultimate gaming strategist!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Strategic Planning</span>
+                        <span class="specialty-tag">No-Shit Attitude</span>
+                        <span class="specialty-tag">Precision</span>
+                    </div>
+                </div>
+
+                <!-- Matthias -->
+                <div class="team-member-card matthias">
+                    <div class="member-avatar">🧠</div>
+                    <h3 class="member-name">Matthias</h3>
+                    <p class="member-title">German Logic Master & Dad</p>
+                    <p class="member-description">
+                        Principal Sales Engineer with German precision and legendary dad jokes. 
+                        His logical approach and hilarious sense of humour make every challenge enjoyable!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">German Engineering</span>
+                        <span class="specialty-tag">Dad Jokes</span>
+                        <span class="specialty-tag">Logic</span>
+                    </div>
+                </div>
+
+                <!-- Rich -->
+                <div class="team-member-card rich">
+                    <div class="member-avatar">🦸‍♂️</div>
+                    <h3 class="member-name">Rich</h3>
+                    <p class="member-title">The Cool Superhero Defender</p>
+                    <p class="member-description">
+                        Principal Sales Engineer who's incredibly chill and cool. Loves superheroes and has amazing tattoos. 
+                        His laid-back vibe and heroic strength keep the team grounded!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Superhero Vibes</span>
+                        <span class="specialty-tag">Cool Defense</span>
+                        <span class="specialty-tag">Tattoo Art</span>
+                    </div>
+                </div>
+
+                <!-- Ross -->
+                <div class="team-member-card ross">
+                    <div class="member-avatar">⚽</div>
+                    <h3 class="member-name">Ross</h3>
+                    <p class="member-title">Stylish Football Solutions Specialist</p>
+                    <p class="member-description">
+                        Senior Product Specialist who works on mortgages and loves football. 
+                        His style is unmatched and he brings that winning mentality to every project!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Mortgage Solutions</span>
+                        <span class="specialty-tag">Football</span>
+                        <span class="specialty-tag">Style</span>
+                    </div>
+                </div>
+
+                <!-- Clement -->
+                <div class="team-member-card clement">
+                    <div class="member-avatar">😎</div>
+                    <h3 class="member-name">Clement</h3>
+                    <p class="member-title">The Smooth Operator</p>
+                    <p class="member-description">
+                        Principal Product Specialist with incredible work ethic, charm, and chic vibes. 
+                        His smooth operations and effortless style make complex solutions look easy!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Smooth Operations</span>
+                        <span class="specialty-tag">Chic Vibes</span>
+                        <span class="specialty-tag">Charm</span>
+                    </div>
+                </div>
+
+                <!-- Queen Rania -->
+                <div class="team-member-card rania">
+                    <div class="member-avatar">👸</div>
+                    <h3 class="member-name">Queen Rania</h3>
+                    <p class="member-title">Noble & Brave Royalty</p>
+                    <p class="member-description">
+                        Principal Product Specialist known for her nobility and bravery. 
+                        We call her Queen Rania because she leads with grace and faces every challenge fearlessly!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Royal Excellence</span>
+                        <span class="specialty-tag">Bravery</span>
+                        <span class="specialty-tag">Leadership</span>
+                    </div>
+                </div>
+
+                <!-- Ali -->
+                <div class="team-member-card ali">
+                    <div class="member-avatar">☕</div>
+                    <h3 class="member-name">Ali</h3>
+                    <p class="member-title">Coffee-Powered Technical Wizard</p>
+                    <p class="member-description">
+                        Technical wizard who absolutely loves his coffee! 
+                        His caffeine-fueled brilliance and technical expertise solve the most complex challenges!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Technical Wizardry</span>
+                        <span class="specialty-tag">Coffee Expert</span>
+                        <span class="specialty-tag">Problem Solving</span>
+                    </div>
+                </div>
+
+                <!-- Nicholas -->
+                <div class="team-member-card nicholas">
+                    <div class="member-avatar">⭐</div>
+                    <h3 class="member-name">Nicholas</h3>
+                    <p class="member-title">Go-Getter Energy Powerhouse</p>
+                    <p class="member-description">
+                        From the good old US of A, Nicholas brings unstoppable go-getter energy and American determination. 
+                        His can-do attitude drives results and inspires the entire team!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Go-Getter Energy</span>
+                        <span class="specialty-tag">American Spirit</span>
+                        <span class="specialty-tag">Results-Driven</span>
+                    </div>
+                </div>
+
+                <!-- Rob -->
+                <div class="team-member-card rob">
+                    <div class="member-avatar">👨‍💼</div>
+                    <h3 class="member-name">Rob</h3>
+                    <p class="member-title">Mr Manager - The Lovable Leader</p>
+                    <p class="member-description">
+                        Known as Mr Manager, Rob is the lovable guy with incredible kindness and leadership skills. 
+                        His approachable nature and management expertise keep everything running smoothly!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Lovable Management</span>
+                        <span class="specialty-tag">Kindness</span>
+                        <span class="specialty-tag">Leadership</span>
+                    </div>
+                </div>
+
+                <!-- Adrien -->
+                <div class="team-member-card adrien">
+                    <div class="member-avatar">🔄</div>
+                    <h3 class="member-name">Adrien</h3>
+                    <p class="member-title">FullCircl Mastery Expert</p>
+                    <p class="member-description">
+                        Solutions Consultant and FullCircl guru! Since nCino's acquisition, Adrien has become the go-to expert 
+                        for all things FullCircl, bringing deep product knowledge and solutions expertise!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">FullCircl Mastery</span>
+                        <span class="specialty-tag">Solutions Consulting</span>
+                        <span class="specialty-tag">Product Expert</span>
+                    </div>
+                </div>
+
+                <!-- Arun -->
+                <div class="team-member-card arun">
+                    <div class="member-avatar">🥃</div>
+                    <h3 class="member-name">Arun</h3>
+                    <p class="member-title">Whisky Wisdom Expert</p>
+                    <p class="member-description">
+                        Arun loves his whisky and brings that sophisticated taste and wisdom to every solution. 
+                        His refined approach and deep knowledge make him a true connoisseur of excellence!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Whisky Wisdom</span>
+                        <span class="specialty-tag">Sophistication</span>
+                        <span class="specialty-tag">Expertise</span>
+                    </div>
+                </div>
+
+                <!-- Arsh -->
+                <div class="team-member-card arsh">
+                    <div class="member-avatar">💪</div>
+                    <h3 class="member-name">Arsh</h3>
+                    <p class="member-title">Fitness Power Champion</p>
+                    <p class="member-description">
+                        Gym and fitness enthusiast who brings that physical and mental strength to every challenge. 
+                        His dedication to fitness translates into powerful performance in everything he does!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Fitness Power</span>
+                        <span class="specialty-tag">Strength</span>
+                        <span class="specialty-tag">Dedication</span>
+                    </div>
+                </div>
+
+                <!-- Lucia -->
+                <div class="team-member-card lucia">
+                    <div class="member-avatar">💃🏻</div>
+                    <h3 class="member-name">Lucia</h3>
+                    <p class="member-title">Spanish Style & Creativity Specialist</p>
+                    <p class="member-description">
+                        Our newest pre-sales team member who brings incredible Spanish language skills, passion, creativity, and style! 
+                        Her fresh perspective and creative energy add a new dimension to the team's capabilities!
+                    </p>
+                    <div class="member-specialties">
+                        <span class="specialty-tag">Spanish Language</span>
+                        <span class="specialty-tag">Creativity</span>
+                        <span class="specialty-tag">Style & Passion</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Quote -->
+            <div style="text-align: center; margin-top: 4rem; padding: 3rem; background: rgba(243, 156, 18, 0.1); border-radius: 20px; border: 2px solid #f39c12;">
+                <h2 style="color: #f39c12; font-size: 2rem; margin-bottom: 1rem;">🎮 Team Gaming Philosophy 🎮</h2>
+                <p style="font-size: 1.3rem; font-style: italic; color: #ecf0f1;">
+                    "We bring the same sass, strategy, and excellence to our games that we bring to pre-sales. 
+                    Every challenge is an opportunity to show our legendary teamwork!"
+                </p>
+                <p style="margin-top: 1rem; color: #f39c12; font-weight: bold;">- The Oscar's Gaming Universe Team</p>
+            </div>
+        </section>
+    </div>
+
+    <script src="../js/navigation.js"></script>
+    <script src="../js/player-selector.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("👥 Meet the incredible gaming legends! 🌟");
+        });
+    </script>
+</body>
+</html>
