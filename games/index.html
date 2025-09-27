@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games - Crispy Springrolls Gaming</title>
+    <title>Games - Oscar's Gaming Universe</title>
     <link rel="stylesheet" href="../css/styles.css">
     <style>
         .games-grid {
@@ -60,6 +60,10 @@
 
         .game-card.chase {
             --game-color: #9b59b6;
+        }
+
+        .game-card.katie {
+            --game-color: #1abc9c;
         }
 
         .game-card.coming-soon {
@@ -235,7 +239,7 @@
         <div class="nav-container">
             <div class="nav-logo">
                 <span class="logo-icon">🥢</span>
-                <span class="logo-text">Crispy Springrolls</span>
+                <span class="logo-text">Oscar's Gaming Universe</span>
             </div>
             <ul class="nav-menu">
                 <li class="nav-item">
@@ -370,13 +374,13 @@
                     </div>
                     
                     <p class="game-description">
-                        Lead the ultimate 13-person pre-sales dream team through impossible crises and chaos as the legendary boss Marley!
+                        Lead the ultimate 14-person pre-sales dream team through impossible crises and chaos as the legendary boss Marley!
                     </p>
                     
                     <ul class="game-features">
                         <li>🌟 Play as the pre-sales master Marley</li>
                         <li>🎯 Point-and-shoot leadership projectiles</li>
-                        <li>👥 Manage all 13 amazing team members</li>
+                        <li>👥 Manage all 14 amazing team members</li>
                         <li>💪 Deploy motivational boost waves</li>
                         <li>📊 Advanced team morale system</li>
                     </ul>
@@ -414,7 +418,7 @@
                     </p>
                     
                     <ul class="game-features">
-                        <li>💃 Play as the stylish Theresa</li>
+                        <li>📊 Play as the Sales Ops hero Theresa</li>
                         <li>😠😏🤔 Chase personality-rich RVPs</li>
                         <li>📧 Collect power-up email reminders</li>
                         <li>📊 Classic Pac-Man style gameplay</li>
@@ -438,46 +442,46 @@
                     
                     <a href="theresas-clari-chase.html" class="play-button">Chase RVPs</a>
                 </div>
+
+                <!-- Katie's Office Adventure -->
+                <div class="game-card katie management" data-category="management">
+                    <div class="game-header">
+                        <div class="game-icon">👑</div>
+                        <div>
+                            <h3 class="game-title">Katie's Office Adventure</h3>
+                            <span class="game-category">Management</span>
+                        </div>
+                    </div>
+                    
+                    <p class="game-description">
+                        Join Katie, the slay queen of regional office management, as she tackles problems head-on and keeps everyone happy in this epic platformer adventure!
+                    </p>
+                    
+                    <ul class="game-features">
+                        <li>👑 Play as Katie the slay queen</li>
+                        <li>🏢 Navigate multi-floor office buildings</li>
+                        <li>💅 SLAY problems with royal style</li>
+                        <li>😊 Keep office happiness at 100%</li>
+                        <li>✨ Different layouts each floor</li>
+                    </ul>
+                    
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="katie-plays">0</div>
+                            <div class="stat-label">Total Plays</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="katie-high">0</div>
+                            <div class="stat-label">High Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">⭐⭐⭐⭐⭐</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+                    
+                    <a href="katies-office-adventure.html" class="play-button">SLAY Mode</a>
                 </div>
-                    <!-- Katie's Office Adventure -->
-<div class="game-card management" data-category="management">
-    <div class="game-header">
-        <div class="game-icon">👑</div>
-        <div>
-            <h3 class="game-title">Katie's Office Adventure</h3>
-            <span class="game-category">Management</span>
-        </div>
-    </div>
-    
-    <p class="game-description">
-        Join Katie, the slay queen of regional office management, as she tackles problems head-on and keeps everyone happy in this epic platformer adventure!
-    </p>
-    
-    <ul class="game-features">
-        <li>👑 Play as Katie the slay queen</li>
-        <li>🏢 Navigate multi-floor office buildings</li>
-        <li>💅 SLAY problems with royal style</li>
-        <li>😊 Keep office happiness at 100%</li>
-        <li>✨ Different layouts each floor</li>
-    </ul>
-    
-    <div class="game-stats">
-        <div class="stat-item">
-            <div class="stat-value" id="katie-plays">0</div>
-            <div class="stat-label">Total Plays</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value" id="katie-high">0</div>
-            <div class="stat-label">High Score</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value">⭐⭐⭐⭐⭐</div>
-            <div class="stat-label">Rating</div>
-        </div>
-    </div>
-    
-    <a href="katies-office-adventure.html" class="play-button">SLAY Mode</a>
-</div>
 
                 <!-- Coming Soon Game 1 -->
                 <div class="game-card coming-soon" data-category="coming-soon">
@@ -487,6 +491,7 @@
                             <h3 class="game-title">The Great British Property Game</h3>
                             <span class="game-category">Strategy</span>
                         </div>
+                    </div>
                     
                     <p class="game-description">
                         Climb the UK property ladder while navigating mortgage madness, stamp duty traps, and interest rate spikes in this exciting strategy game!
@@ -534,6 +539,7 @@
     </div>
 
     <script src="../js/navigation.js"></script>
+    <script src="../js/player-selector.js"></script>
     <script>
         // Category filtering
         document.addEventListener('DOMContentLoaded', function() {
@@ -564,20 +570,35 @@
         });
 
         function loadGameStats() {
-            // Load and display game statistics from localStorage
-            const stats = JSON.parse(localStorage.getItem('gameStats')) || {};
+            // Load and display real game statistics from localStorage
+            const allScores = JSON.parse(localStorage.getItem('gameScores')) || [];
+            const gameStats = {};
             
-            // Update displayed stats if available
-            Object.keys(stats).forEach(gameId => {
-                const playsElement = document.getElementById(`${gameId}-plays`);
-                const highElement = document.getElementById(`${gameId}-high`);
+            // Calculate stats from actual play data
+            allScores.forEach(score => {
+                if (!gameStats[score.gameId]) {
+                    gameStats[score.gameId] = {
+                        plays: 0,
+                        highScore: 0
+                    };
+                }
+                gameStats[score.gameId].plays++;
+                if (score.score > gameStats[score.gameId].highScore) {
+                    gameStats[score.gameId].highScore = score.score;
+                }
+            });
+            
+            // Update displayed stats
+            Object.keys(gameStats).forEach(gameId => {
+                const playsElement = document.getElementById(`${gameId.replace('-', '-')}-plays`);
+                const highElement = document.getElementById(`${gameId.replace('-', '-')}-high`);
                 
-                if (playsElement && stats[gameId].plays) {
-                    playsElement.textContent = stats[gameId].plays.toLocaleString();
+                if (playsElement) {
+                    playsElement.textContent = gameStats[gameId].plays.toLocaleString();
                 }
                 
-                if (highElement && stats[gameId].highScore) {
-                    highElement.textContent = stats[gameId].highScore.toLocaleString();
+                if (highElement) {
+                    highElement.textContent = gameStats[gameId].highScore.toLocaleString();
                 }
             });
         }
